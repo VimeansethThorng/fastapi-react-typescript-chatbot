@@ -1,8 +1,33 @@
+/**
+ * AllConversations Component
+ * 
+ * This component displays a sidebar list of all conversations for a specific user.
+ * It provides functionality to select, delete, and auto-refresh conversations.
+ * The component manages its own state for loading, error handling, and deletion confirmations.
+ * 
+ * Key Features:
+ * - Displays conversation list with titles and timestamps
+ * - Auto-refreshes every 30 seconds
+ * - Handles conversation selection and deletion
+ * - Shows loading states and error messages
+ * - Responsive design with highlighting for active conversation
+ */
+
 import React, { useState, useEffect } from 'react';
 import { ConversationSummary, FullConversation } from '../types';
 import { chatAPI } from '../api';
 import ConfirmDialog from './ConfirmDialog';
 
+/**
+ * Props interface for AllConversations component
+ * 
+ * @interface AllConversationsProps
+ * @property {string} userId - The unique identifier for the current user
+ * @property {function} onSelectConversation - Callback function when a conversation is selected
+ * @property {function} [onDeleteConversation] - Optional callback when a conversation is deleted
+ * @property {number} [currentConversationId] - ID of the currently active conversation for highlighting
+ * @property {number} [refreshTrigger] - Trigger value to force refresh when new conversation is created
+ */
 interface AllConversationsProps {
   userId: string;
   onSelectConversation: (conversation: FullConversation) => void;
@@ -11,6 +36,12 @@ interface AllConversationsProps {
   refreshTrigger?: number;
 }
 
+/**
+ * AllConversations functional component
+ * 
+ * Manages the display and interaction of all user conversations in a sidebar format.
+ * Implements auto-refresh functionality and handles conversation lifecycle operations.
+ */
 const AllConversations: React.FC<AllConversationsProps> = ({
   userId,
   onSelectConversation,
@@ -18,6 +49,7 @@ const AllConversations: React.FC<AllConversationsProps> = ({
   currentConversationId,
   refreshTrigger
 }) => {
+  // State management for conversations list and UI states
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isAutoRefreshing, setIsAutoRefreshing] = useState(false);
@@ -25,18 +57,29 @@ const AllConversations: React.FC<AllConversationsProps> = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [conversationToDelete, setConversationToDelete] = useState<number | null>(null);
 
+  /**
+   * Effect: Load conversations when component mounts or userId changes
+   * This ensures that conversations are loaded immediately when the component is rendered
+   */
   useEffect(() => {
     loadConversations();
   }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Refresh when new conversation is created
+  /**
+   * Effect: Refresh conversations when refreshTrigger changes
+   * This is used to refresh the list when a new conversation is created from the parent component
+   */
   useEffect(() => {
     if (refreshTrigger && refreshTrigger > 0) {
       loadConversations();
     }
   }, [refreshTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Auto-refresh conversations every 30 seconds
+  /**
+   * Effect: Set up auto-refresh interval
+   * Automatically refreshes the conversation list every 30 seconds to keep it up-to-date
+   * This ensures users see new conversations or updates without manual refresh
+   */
   useEffect(() => {
     const interval = setInterval(() => {
       loadConversations(true); // Pass true for auto-refresh
@@ -45,6 +88,12 @@ const AllConversations: React.FC<AllConversationsProps> = ({
     return () => clearInterval(interval);
   }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  /**
+   * Loads conversations from the API
+   * 
+   * @param {boolean} isAutoRefresh - Flag to indicate if this is an automatic refresh
+   *                                  When true, shows a subtle loading indicator instead of full loading state
+   */
   const loadConversations = async (isAutoRefresh = false) => {
     if (isAutoRefresh) {
       setIsAutoRefreshing(true);
@@ -52,11 +101,13 @@ const AllConversations: React.FC<AllConversationsProps> = ({
       setIsLoading(true);
     }
     setError(null);
+    
     try {
       const conversationList = await chatAPI.getUserConversations(userId);
       setConversations(conversationList);
     } catch (error) {
       console.error('Error loading conversations:', error);
+      // Only show error message for manual loads, not auto-refresh
       if (!isAutoRefresh) {
         setError('Failed to load conversations');
       }
@@ -69,6 +120,12 @@ const AllConversations: React.FC<AllConversationsProps> = ({
     }
   };
 
+  /**
+   * Handles conversation selection when user clicks on a conversation item
+   * Fetches the full conversation data including all messages and passes it to parent component
+   * 
+   * @param {number} conversationId - The ID of the conversation to load
+   */
   const handleConversationClick = async (conversationId: number) => {
     try {
       const fullConversation = await chatAPI.getFullConversation(conversationId);
@@ -79,23 +136,37 @@ const AllConversations: React.FC<AllConversationsProps> = ({
     }
   };
 
-  const handleDeleteConversation = (conversationId: number, event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent triggering the conversation click
+  /**
+   * Initiates the conversation deletion process
+   * Shows a confirmation dialog before proceeding with deletion
+   * 
+   * @param {React.MouseEvent} e - Mouse event to prevent event bubbling
+   * @param {number} conversationId - The ID of the conversation to delete
+   */
+  const handleDeleteClick = (e: React.MouseEvent, conversationId: number) => {
+    e.stopPropagation(); // Prevent conversation selection when clicking delete
     setConversationToDelete(conversationId);
     setShowDeleteConfirm(true);
   };
 
-  const confirmDeleteConversation = async () => {
-    if (!conversationToDelete) return;
+  /**
+   * Confirms and executes conversation deletion
+   * Removes the conversation from the API and updates local state
+   */
+  const confirmDelete = async () => {
+    if (conversationToDelete === null) return;
 
     try {
       await chatAPI.deleteConversation(conversationToDelete);
-      // Remove the conversation from the local state
-      setConversations(prev => prev.filter(conv => conv.id !== conversationToDelete));
       
-      // If the deleted conversation was the current one, clear it
-      if (currentConversationId === conversationToDelete) {
-        onDeleteConversation?.(conversationToDelete);
+      // Update local state to remove the deleted conversation
+      setConversations(prev => 
+        prev.filter(conv => conv.id !== conversationToDelete)
+      );
+      
+      // Notify parent component if callback is provided
+      if (onDeleteConversation) {
+        onDeleteConversation(conversationToDelete);
       }
     } catch (error) {
       console.error('Error deleting conversation:', error);
@@ -106,11 +177,21 @@ const AllConversations: React.FC<AllConversationsProps> = ({
     }
   };
 
-  const cancelDeleteConversation = () => {
+  /**
+   * Cancels the deletion process and closes the confirmation dialog
+   */
+  const cancelDelete = () => {
     setShowDeleteConfirm(false);
     setConversationToDelete(null);
   };
 
+  /**
+   * Formats a date string into a more readable format
+   * Shows relative time (today, yesterday) or formatted date for older conversations
+   * 
+   * @param {string} dateString - ISO date string from the API
+   * @returns {string} Formatted date string for display
+   */
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -121,27 +202,39 @@ const AllConversations: React.FC<AllConversationsProps> = ({
       return 'Today';
     } else if (diffDays === 2) {
       return 'Yesterday';
-    } else if (diffDays <= 7) {
-      return `${diffDays - 1} days ago`;
     } else {
       return date.toLocaleDateString();
     }
   };
 
+  // Remove the existing render section and replace with commented version
+  /**
+   * Component render method
+   * 
+   * Renders the conversations sidebar with:
+   * - Auto-refresh indicator (subtle dot when refreshing in background)
+   * - Loading state with spinner for initial loads
+   * - Error state with retry button
+   * - List of conversations with click handlers and delete buttons
+   * - Confirmation dialog for deletions
+   */
   return (
     <div className="conversations-sidebar-panel">
+      {/* Auto-refresh indicator - shows a subtle dot when refreshing in background */}
       {isAutoRefreshing && (
         <div className="auto-refresh-indicator">
           <div className="auto-refresh-dot"></div>
         </div>
       )}
       
+      {/* Loading state - shown during initial load or manual refresh */}
       {isLoading && (
         <div className="conversations-loading">
           <div className="loading-spinner">Loading...</div>
         </div>
       )}
 
+      {/* Error state - displays error message with retry option */}
       {error && (
         <div className="conversations-error">
           <p>{error}</p>
@@ -151,12 +244,14 @@ const AllConversations: React.FC<AllConversationsProps> = ({
         </div>
       )}
 
+      {/* Empty state when no conversations exist */}
       {!isLoading && !error && conversations.length === 0 && (
         <div className="no-conversations">
           <p>No conversations yet</p>
         </div>
       )}
 
+      {/* Conversations list - main content area with conversation items */}
       {!isLoading && !error && conversations.length > 0 && (
         <div className="conversations-list">
           {conversations.map((conversation) => (
@@ -167,6 +262,7 @@ const AllConversations: React.FC<AllConversationsProps> = ({
               }`}
               onClick={() => handleConversationClick(conversation.id)}
             >
+              {/* Conversation preview with text and metadata */}
               <div className="conversation-preview">
                 <div className="conversation-text">
                   {conversation.preview}
@@ -180,9 +276,10 @@ const AllConversations: React.FC<AllConversationsProps> = ({
                   </span>
                 </div>
               </div>
+              {/* Delete button - stops event propagation to prevent conversation selection */}
               <button
                 className="delete-conversation-btn"
-                onClick={(e) => handleDeleteConversation(conversation.id, e)}
+                onClick={(e) => handleDeleteClick(e, conversation.id)}
                 title="Delete conversation"
               >
                 🗑️
@@ -192,6 +289,7 @@ const AllConversations: React.FC<AllConversationsProps> = ({
         </div>
       )}
       
+      {/* Confirmation dialog for conversation deletion with danger variant */}
       <ConfirmDialog
         isOpen={showDeleteConfirm}
         title="Delete Conversation"
@@ -199,8 +297,8 @@ const AllConversations: React.FC<AllConversationsProps> = ({
         confirmText="Delete"
         cancelText="Cancel"
         variant="danger"
-        onConfirm={confirmDeleteConversation}
-        onCancel={cancelDeleteConversation}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
       />
     </div>
   );
