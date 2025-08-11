@@ -2,6 +2,13 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 class MessageCreate(BaseModel):
+    """
+    MessageCreate is a Pydantic model representing the data required to create a new message.
+
+    Attributes:
+        content (str): The textual content of the message.
+        conversation_id (Optional[int]): The ID of the conversation to which the message belongs. Defaults to None if not provided.
+    """
     content: str
     conversation_id: Optional[int] = None
 
