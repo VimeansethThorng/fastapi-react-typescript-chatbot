@@ -1,8 +1,17 @@
-# ⚛️ React TypeScript Frontend Documentation
+# ⚛️ React TypeScript Frontend
 
 ## Overview
 
-This is a modern React frontend built with TypeScript for a chatbot application. It provides an intuitive chat interface with conversation management, real-time messaging, rich content rendering (tables, code, equations), and seamless integration with the FastAPI backend.
+This is a modern React frontend built with TypeScript for an AI chatbot application. It provides an intuitive chat interface with conversation management, real-time messaging, rich content rendering (tables, code, equations), and seamless integration with the FastAPI backend.
+
+## ✨ Key Features
+
+- 🎨 **Modern Chat UI** - Clean, responsive chat interface
+-  **Real-time Messaging** - Instant chat with typing indicators
+- 📚 **Conversation Management** - Create, view, and delete conversations
+- 📊 **Rich Content Rendering** - Tables, code blocks, mathematical equations
+- 🔐 **User Authentication** - Login/register with JWT tokens
+- 📱 **Responsive Design** - Works seamlessly on all devices
 
 ## 🏗️ Architecture
 

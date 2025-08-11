@@ -2,7 +2,15 @@
 
 ## Overview
 
-This is a FastAPI-based backend for a chatbot application that uses SQLite for data persistence and OpenAI's GPT API for chat responses. The backend provides a RESTful API for managing conversations and processing chat messages with modern Python dependency management using Poetry.
+This is a FastAPI-based backend for an AI chatbot application that uses SQLite for data persistence and OpenAI's GPT API for chat responses. The backend provides a comprehensive RESTful API for managing conversations and processing chat messages with modern Python dependency management using Poetry.
+
+## ✨ Key Features
+
+- 🤖 **AI Chat Responses** - OpenAI GPT integration
+- 🔐 **User Authentication** - JWT-based secure authentication
+- 📚 **Conversation Management** - Persistent chat history
+- 🗄️ **SQLite Database** - Lightweight, file-based storage
+- 📦 **Poetry** - Modern Python dependency management
 
 ## 🏗️ Architecture
 
@@ -11,17 +19,19 @@ graph TB
     subgraph "FastAPI Backend Architecture"
         API[FastAPI Application<br/>main_sqlite.py]
         MODELS[Pydantic Models<br/>models.py]
-        SERVICE[Chat Service<br/>chat_service_sqlite.py]
+        AUTH[Authentication Service<br/>auth_service.py]
+        CHAT_SERVICE[Chat Service<br/>chat_service_sqlite.py]
         DB[Database Manager<br/>database_sqlite.py]
         CONFIG[Configuration<br/>config_sqlite.py]
         SQLITE[(SQLite Database<br/>chatbot.db)]
         
         API --> MODELS
-        API --> SERVICE
+        API --> AUTH
+        API --> CHAT_SERVICE
         API --> DB
-        SERVICE --> CONFIG
+        CHAT_SERVICE --> CONFIG
         DB --> SQLITE
-        SERVICE --> |OpenAI API| OPENAI[OpenAI GPT-4]
+        CHAT_SERVICE --> |OpenAI API| OPENAI[OpenAI GPT-4]
     end
 ```
 
@@ -32,19 +42,29 @@ The backend uses Poetry for modern Python dependency management:
 
 ```toml
 [tool.poetry.dependencies]
-python = ">=3.8.1,<4.0"
+python = ">=3.9,<4.0"
 fastapi = "^0.104.1"
 uvicorn = "^0.24.0"
 openai = "^1.3.7"
 python-dotenv = "^1.0.0"
 pydantic = "^2.9.2"
 python-multipart = "^0.0.6"
+passlib = "^1.7.4"
+python-jose = "^3.3.0"
+bcrypt = "^4.0.1"
+requests = "^2.32.4"
 ```
 
 ### Environment Variables
 Create a `.env` file based on `.env.example`:
 ```bash
+# OpenAI API Key for chat completions
 OPENAI_API_KEY=your_openai_api_key_here
+
+# JWT Secret Key for authentication
+JWT_SECRET_KEY=your_secure_random_string_here
+
+# Database configuration
 DATABASE_URL=sqlite:///chatbot.db
 ```
 

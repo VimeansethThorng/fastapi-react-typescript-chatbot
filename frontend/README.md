@@ -1,14 +1,20 @@
 # ⚛️ React TypeScript Frontend
 
-This is the frontend application for the FastAPI-React TypeScript Chatbot. Built with React 18, TypeScript, and modern dependencies for rich content rendering.
+This is the frontend application for the FastAPI-React TypeScript Chatbot. Built with React 18, TypeScript, and modern dependencies for rich content rendering and real-time chat functionality.
 
 ## ✨ Features
 
+### Core Chat Features
 - 🎨 **Modern UI**: Custom CSS with responsive design
 - 📝 **Rich Content**: Support for tables, code blocks, and math equations
 - ⚡ **Real-time Chat**: Seamless communication with FastAPI backend
 - 🔄 **Auto-refresh**: Conversation history updates automatically
 - 📱 **Responsive**: Works on desktop and mobile devices
+
+### Authentication Features
+- 🔐 **JWT Authentication**: Secure user login and registration
+- 👤 **User Management**: Personal conversation storage
+- 🔑 **Session Management**: Persistent login with token refresh
 
 ## 🚀 Quick Start
 
@@ -39,6 +45,26 @@ npm start
 - **katex**: Mathematical equation rendering
 - **remark-gfm**: GitHub Flavored Markdown (tables)
 - **remark-math** & **rehype-katex**: Math equation support
+
+### Component Architecture
+```
+src/
+├── components/
+│   ├── ChatBot.tsx           # Main chat interface
+│   ├── MessageBubble.tsx     # Individual message display
+│   ├── MessageInput.tsx      # User input component
+│   ├── AllConversations.tsx  # Conversation history
+│   ├── TypingIndicator.tsx   # Loading animation
+│   ├── LoadingDots.tsx       # Loading dots
+│   └── ConfirmDialog.tsx     # Confirmation dialogs
+├── api.ts                    # API client functions
+├── types.ts                  # TypeScript type definitions
+└── App.tsx                   # Main application component
+```
+
+## 🛠️ Configuration
+
+The frontend is configured to connect to the FastAPI backend at `http://localhost:8000` with CORS enabled for development.
 
 ### `npm run eject`
 
