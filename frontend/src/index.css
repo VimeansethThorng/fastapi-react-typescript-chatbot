@@ -466,7 +466,9 @@ body {
   
   color: white;                           /* White text for contrast */
   padding: 20px;                          /* Comfortable internal spacing */
-  text-align: left;                       /* Left-aligned content */
+  display: flex;                          /* Flexbox layout */
+  justify-content: space-between;         /* Space between title and user info */
+  align-items: center;                    /* Vertically center items */
   flex-shrink: 0;                         /* Don't shrink when space is limited */
 }
 
@@ -478,7 +480,43 @@ body {
 .chat-title {
   margin: 0;                              /* Remove default heading margins */
   font-size: 1.5rem;                      /* Large, prominent text */
-  font-weight: 600;                       /* Semi-bold weight */
+}
+
+/**
+ * User info in chat header
+ * 
+ * Contains welcome message and logout button for chat header
+ */
+.chat-header .user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  max-width: none;
+  margin: 0;
+}
+
+.chat-header .welcome-text {
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.chat-header .logout-button {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.chat-header .logout-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
 }
 
 /* ===== MESSAGES DISPLAY AREA ===== */

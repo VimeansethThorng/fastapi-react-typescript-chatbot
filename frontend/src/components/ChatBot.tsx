@@ -8,7 +8,21 @@ import AllConversations from './AllConversations';
 // Import TypeScript types for type safety
 import { Message, FullConversation } from '../types';
 // Import API functions to communicate with the backend
-import { chatAPI } from '../api';
+import { api } from '../api';
+
+// User interface
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  created_at: string;
+}
+
+// Component props interface
+interface ChatBotProps {
+  currentUser: User;
+  onLogout: () => void;
+}
 
 /**
  * ChatBot Component - Main chat interface component
@@ -19,10 +33,11 @@ import { chatAPI } from '../api';
  * - Real-time messaging with backend API
  * - Auto-scrolling to latest messages
  * - Loading states and error handling
+ * - User info and logout functionality
  * 
  * The component uses React.FC (FunctionComponent) type for TypeScript type safety
  */
-const ChatBot: React.FC = () => {
+const ChatBot: React.FC<ChatBotProps> = ({ currentUser, onLogout }) => {
   // STATE MANAGEMENT
   
   // Array of messages in the current conversation
@@ -36,9 +51,6 @@ const ChatBot: React.FC = () => {
   
   // Typing indicator state to show when assistant is "thinking"
   const [isTyping, setIsTyping] = useState(false);
-  
-  // User ID - in production, this would come from authentication system
-  const [userId] = useState('user-123'); // In a real app, this would come from authentication
   
   // Trigger to refresh conversation list when new conversation is created
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -108,10 +120,9 @@ const ChatBot: React.FC = () => {
 
     try {
       // Send message to backend API
-      const response = await chatAPI.sendMessage({
+      const response = await api.sendMessage({
         message: messageContent,
         conversation_id: conversationId || undefined, // undefined for new conversations
-        user_id: userId,
       });
 
       // If this is a new conversation, update the conversation ID
@@ -176,7 +187,6 @@ const ChatBot: React.FC = () => {
         {/* Container for conversation list component */}
         <div className="conversations-list-container">
           <AllConversations
-            userId={userId}
             onSelectConversation={handleSelectConversation}
             onDeleteConversation={handleDeleteConversation}
             currentConversationId={conversationId || undefined}
@@ -190,6 +200,16 @@ const ChatBot: React.FC = () => {
         {/* Chat Header */}
         <div className="chat-header">
           <h1 className="chat-title">✨ AI Assistant</h1>
+          <div className="user-info">
+            <span className="welcome-text">Welcome, {currentUser.username}!</span>
+            <button 
+              className="logout-button"
+              onClick={onLogout}
+              aria-label="Logout"
+            >
+              Logout
+            </button>
+          </div>
         </div>
 
         {/* Messages Display Area */}
