@@ -1,10 +1,20 @@
 
-# 🤖 FastAPI-React TypeScript Chatbot
+# 🤖 FastAPI-- 🎨 **M- 📊 **Rich Content Support** - Tables, code blocks, and mathematical equations
 
-A modern, full-stack chatbot application built with React (TypeScript) frontend and FastAPI backend, featuring conversation management, real-time chat, and AI-powered responses using OpenAI's GPT model.
+### Technical Features- Clean, professional interface with custom CSS styling
+- 📊 **Rich Content Support** - Tables, code blocks, and mathematical equations
+
+### Technical Features
+- 🚀 **One-command Setup** - Start entire stack with a single script
+- 📦 **Poetry Integration** - Modern Python dependency management
+- 🔐 **User Authentication** - JWT-based secure login system
+- 🌐 **CORS Support** - Seamless frontend-backend communication Chatbot
+
+A modern, full-stack AI chatbot application built with React (TypeScript) frontend and FastAPI backend, featuring conversation management, real-time chat, and AI-powered responses using OpenAI's GPT model.
 
 ## ✨ Features
 
+### Core Chat Features
 - 💬 **Real-time Chat Interface** - Seamless conversation with AI assistant
 - 📚 **Conversation History** - All chats are saved and retrievable  
 - 🗑️ **Delete Conversations** - Remove unwanted conversation history
@@ -13,8 +23,20 @@ A modern, full-stack chatbot application built with React (TypeScript) frontend 
 - 📱 **Responsive Design** - Works on desktop and mobile devices
 - 🎨 **Modern UI** - Clean, professional interface with custom CSS styling
 - 📊 **Rich Content Support** - Tables, code blocks, and mathematical equations
-- 🚀 **One-command Setup** - Start entire stack with a single script
+
+### RAG & File Features
+- 📄 **Document Upload** - Support for PDF, Word documents, and text files
+- 🧠 **RAG System** - Retrieval-Augmented Generation for document-based Q&A
+- � **Semantic Search** - ChromaDB vector database for intelligent document search
+- 📝 **Document Processing** - Automatic text extraction and chunking
+- 💡 **Context-Aware Responses** - AI answers questions based on uploaded documents
+- 🔗 **File Integration** - Link documents to conversations and messages
+
+### Technical Features
+- �🚀 **One-command Setup** - Start entire stack with a single script
 - 📦 **Poetry Integration** - Modern Python dependency management
+- 🔐 **User Authentication** - JWT-based secure login system
+- 🌐 **CORS Support** - Seamless frontend-backend communication
 
 ## 🏗️ Tech Stack
 
@@ -27,6 +49,7 @@ A modern, full-stack chatbot application built with React (TypeScript) frontend 
 
 ### Backend  
 - **FastAPI** (Python web framework)
+- **User Authentication** with JWT tokens
 - **Poetry** for dependency management
 - **SQLite** database for conversation storage
 - **OpenAI API** for AI responses

@@ -2,7 +2,21 @@
 
 ## 🌟 Application Overview
 
-This is a modern full-stack chatbot application built with FastAPI (backend) and React TypeScript (frontend) using SQLite as the database. The application features rich content rendering, modern dependency management with Poetry, and one-command deployment.
+This is a modern full-stack AI chatbot application built with FastAPI (backend) and React TypeScript (frontend). The application supports real-time chat, conversation management, and user authentication using SQLite for data persistence and Poetry for dependency management.
+
+## ✨ Key Features
+
+### Core Features
+- 💬 **Real-time Chat** - Instant messaging with AI assistant
+- 📚 **Conversation Management** - Persistent chat history
+- 🔐 **User Authentication** - Secure JWT-based login system
+- 📱 **Responsive Design** - Works on all devices
+
+### Technical Features
+- 🏗️ **Modern Architecture** - FastAPI + React + TypeScript
+- 📦 **Poetry** - Modern Python dependency management  
+- 🚀 **One-command Setup** - Simple deployment
+- 📊 **Rich Content** - Tables, code blocks, math equations
 
 ## 🏗️ Application Flow Diagram
 
@@ -64,6 +78,8 @@ graph TB
     CHAT_SERVICE --> DB_MANAGER
     DB_MANAGER --> SQLITE
     
+    CHAT_SERVICE -.-> OPENAI
+    
     %% Data Flow
     MAIN -.->|JSON Response| HTTP
     HTTP -.->|JSON Response| API_CLIENT
@@ -80,7 +96,9 @@ sequenceDiagram
     participant ChatService as chat_service_sqlite.py
     participant DBManager as database_sqlite.py
     participant SQLite as chatbot.db
+    participant OpenAI as OpenAI API
     
+    %% Chat Flow
     User->>ChatBot: Types message
     ChatBot->>ChatBot: Add user message to UI
     ChatBot->>API: sendMessage(request)
@@ -97,7 +115,9 @@ sequenceDiagram
     DBManager->>SQLite: SELECT messages
     SQLite-->>DBManager: message history
     
-    FastAPI->>ChatService: generate_response
+    FastAPI->>ChatService: generate_response(query, history)
+    ChatService->>OpenAI: chat_completion(prompt)
+    OpenAI-->>ChatService: AI response
     ChatService-->>FastAPI: AI response
     
     FastAPI->>DBManager: save_message (assistant message)
@@ -120,6 +140,7 @@ graph LR
         B --> E[TypingIndicator.tsx]
         B --> F[AllConversations.tsx]
         B --> G[LoadingDots.tsx]
+        B --> H[ConfirmDialog.tsx]
     end
     
     subgraph "API Layer"
