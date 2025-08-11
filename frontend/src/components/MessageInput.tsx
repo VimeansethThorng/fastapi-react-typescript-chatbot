@@ -93,7 +93,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, isLoading })
         ref={textareaRef}
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        onKeyPress={handleKeyPress}
+        onKeyDown={handleKeyPress}
         placeholder="Type your message... (Enter to send, Shift+Enter for new line)"
         className="message-input"
         disabled={isLoading} // Prevent input during message processing
