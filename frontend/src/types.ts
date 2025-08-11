@@ -28,11 +28,11 @@ export interface Message {
  * 
  * Represents the payload structure for POST /chat API endpoint
  * Corresponds to the ChatRequest Pydantic model in the backend
+ * User authentication is handled via JWT token in headers
  */
 export interface ChatRequest {
   message: string;                     // The user's message content
   conversation_id?: number;            // Optional: ID of existing conversation (undefined for new)
-  user_id?: string;                   // Optional: Unique identifier for the user sending the message
 }
 
 /**

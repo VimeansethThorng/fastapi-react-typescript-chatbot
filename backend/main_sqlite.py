@@ -17,17 +17,21 @@ Key Features:
 """
 
 # FastAPI framework imports for web API functionality
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 # Import Pydantic models for request/response validation
-from models import ChatRequest, ChatResponse, ConversationCreate, ConversationResponse
+from models import ChatRequest, ChatResponse, ConversationCreate, ConversationResponse, UserCreate, UserLogin, LoginResponse, UserResponse
 
 # Import database manager for SQLite operations
 from database_sqlite import db_manager
 
 # Import chat service for OpenAI integration and business logic
 from chat_service_sqlite import chat_service
+
+# Import authentication service for user management
+from auth_service import auth_service
 
 # Import logging for debugging and monitoring
 import logging
@@ -38,6 +42,29 @@ import logging
 logging.basicConfig(level=logging.INFO)
 # Create module-specific logger for tracking messages from this file
 logger = logging.getLogger(__name__)
+
+# SECURITY CONFIGURATION
+# JWT Bearer token authentication
+security = HTTPBearer()
+
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> UserResponse:
+    """
+    Dependency to get current authenticated user from JWT token
+    
+    Args:
+        credentials: HTTP Bearer credentials containing JWT token
+        
+    Returns:
+        UserResponse: Current authenticated user
+        
+    Raises:
+        HTTPException: 401 if token is invalid or user not found
+    """
+    token = credentials.credentials
+    user = auth_service.get_current_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid token or user not found")
+    return user
 
 # FASTAPI APPLICATION INITIALIZATION
 # Initialize FastAPI application with metadata for auto-generated documentation
@@ -102,8 +129,102 @@ async def root():
         "status": "healthy"
     }
 
+# AUTHENTICATION ENDPOINTS
+
+@app.post("/auth/register", response_model=UserResponse)
+async def register(user_data: UserCreate):
+    """
+    Register a new user account
+    
+    Creates a new user with hashed password and returns user information
+    without sensitive data like password hash.
+    
+    Args:
+        user_data (UserCreate): User registration data including username, email, password
+        
+    Returns:
+        UserResponse: Created user information without password
+        
+    Raises:
+        HTTPException: 400 if username/email already exists, 500 for server errors
+    """
+    try:
+        logger.info(f"Attempting to register user: {user_data.username}")
+        
+        user = auth_service.register_user(user_data)
+        if not user:
+            logger.warning(f"Registration failed for username: {user_data.username}")
+            raise HTTPException(
+                status_code=400, 
+                detail="Username or email already exists"
+            )
+        
+        logger.info(f"User registered successfully: {user.username}")
+        return user
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error during user registration: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.post("/auth/login", response_model=LoginResponse)
+async def login(login_data: UserLogin):
+    """
+    Authenticate user and return access token
+    
+    Validates user credentials and returns JWT access token for subsequent
+    authenticated requests.
+    
+    Args:
+        login_data (UserLogin): User login credentials (username and password)
+        
+    Returns:
+        LoginResponse: Access token and user information
+        
+    Raises:
+        HTTPException: 401 for invalid credentials, 500 for server errors
+    """
+    try:
+        logger.info(f"Login attempt for username: {login_data.username}")
+        
+        login_response = auth_service.authenticate_user(login_data)
+        if not login_response:
+            logger.warning(f"Login failed for username: {login_data.username}")
+            raise HTTPException(
+                status_code=401, 
+                detail="Invalid username or password"
+            )
+        
+        logger.info(f"User logged in successfully: {login_data.username}")
+        return login_response
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error during user login: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.get("/auth/me", response_model=UserResponse)
+async def get_current_user_info(current_user: UserResponse = Depends(get_current_user)):
+    """
+    Get current authenticated user information
+    
+    Returns information about the currently authenticated user based on
+    the JWT token provided in the Authorization header.
+    
+    Args:
+        current_user: Authenticated user (injected by dependency)
+        
+    Returns:
+        UserResponse: Current user information
+    """
+    return current_user
+
+# CHAT ENDPOINTS
+
 @app.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest):
+async def chat(request: ChatRequest, current_user: UserResponse = Depends(get_current_user)):
     """
     Main chat endpoint - processes user messages and returns AI responses
     
@@ -116,6 +237,7 @@ async def chat(request: ChatRequest):
     
     Args:
         request (ChatRequest): Contains message, optional conversation_id, and user_id
+        current_user: Authenticated user (injected by dependency)
         
     Returns:
         ChatResponse: Contains AI response text and conversation_id
@@ -124,12 +246,14 @@ async def chat(request: ChatRequest):
         HTTPException: 400 for invalid requests, 500 for server errors
     """
     try:
-        logger.info(f"Received chat request from user {request.user_id}")
+        # Use authenticated user's ID instead of request user_id
+        user_id = str(current_user.id)
+        logger.info(f"Received chat request from authenticated user {user_id}")
         
         # Handle conversation creation for new chats
         if not request.conversation_id:
             logger.info("Creating new conversation")
-            conversation_id = db_manager.create_conversation(request.user_id)
+            conversation_id = db_manager.create_conversation(user_id)
             if not conversation_id:
                 logger.error("Failed to create new conversation")
                 raise HTTPException(status_code=500, detail="Failed to create conversation")
@@ -204,10 +328,20 @@ async def get_conversation_messages(conversation_id: int):
         logger.error(f"Error fetching messages: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-# Get all conversations for a specific user
-@app.get("/conversations/user/{user_id}")
-async def get_user_conversations(user_id: str):
+# Get all conversations for the authenticated user
+@app.get("/conversations")
+async def get_user_conversations(current_user: UserResponse = Depends(get_current_user)):
+    """
+    Get all conversations for the authenticated user
+    
+    Args:
+        current_user: Authenticated user (injected by dependency)
+        
+    Returns:
+        list: List of conversations with metadata for the current user
+    """
     try:
+        user_id = str(current_user.id)
         conversations = db_manager.get_all_conversations(user_id)
         return [
             {
