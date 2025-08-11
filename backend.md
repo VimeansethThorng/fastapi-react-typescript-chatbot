@@ -1,10 +1,10 @@
-# FastAPI Backend Documentation
+# 🚀 FastAPI Backend Documentation
 
 ## Overview
 
-This is a FastAPI-based backend for a chatbot application that uses SQLite for data persistence and OpenAI's GPT-3.5-turbo for chat responses. The backend provides a RESTful API for managing conversations and processing chat messages.
+This is a FastAPI-based backend for a chatbot application that uses SQLite for data persistence and OpenAI's GPT API for chat responses. The backend provides a RESTful API for managing conversations and processing chat messages with modern Python dependency management using Poetry.
 
-## Architecture
+## 🏗️ Architecture
 
 ```mermaid
 graph TB
@@ -21,8 +21,31 @@ graph TB
         API --> DB
         SERVICE --> CONFIG
         DB --> SQLITE
-        SERVICE --> |OpenAI API| OPENAI[OpenAI GPT-3.5-turbo]
+        SERVICE --> |OpenAI API| OPENAI[OpenAI GPT-4]
     end
+```
+
+## 📦 Dependencies & Setup
+
+### Poetry Configuration
+The backend uses Poetry for modern Python dependency management:
+
+```toml
+[tool.poetry.dependencies]
+python = ">=3.8.1,<4.0"
+fastapi = "^0.104.1"
+uvicorn = "^0.24.0"
+openai = "^1.3.7"
+python-dotenv = "^1.0.0"
+pydantic = "^2.9.2"
+python-multipart = "^0.0.6"
+```
+
+### Environment Variables
+Create a `.env` file based on `.env.example`:
+```bash
+OPENAI_API_KEY=your_openai_api_key_here
+DATABASE_URL=sqlite:///chatbot.db
 ```
 
 ## Core Components

@@ -1,14 +1,27 @@
-# FastAPI Chatbot Backend
+# 🚀 FastAPI Chatbot Backend
 
-This is the backend service for the FastAPI-React TypeScript chatbot application.
+This is the backend service for the FastAPI-React TypeScript chatbot application, featuring modern Python dependency management with Poetry and OpenAI integration.
 
-## Dependencies
+## ✨ Features
 
-This project uses [Poetry](https://python-poetry.org/) for dependency management.
+- 🤖 **OpenAI Integration**: GPT-4 powered responses
+- 📦 **Poetry Management**: Modern Python dependency handling
+- 🗄️ **SQLite Database**: Lightweight, file-based storage
+- 🔒 **Environment Variables**: Secure configuration management
+- 📚 **API Documentation**: Auto-generated with FastAPI
+- 🌐 **CORS Support**: Seamless frontend integration
 
-## Setup
+## 🚀 Quick Start
 
-### Using Poetry (Recommended)
+### Using the Root Script (Recommended)
+```bash
+# From the project root
+./start.sh
+```
+
+### Manual Setup
+
+#### Using Poetry (Recommended)
 
 1. Install Poetry if you haven't already:
    ```bash
@@ -20,7 +33,13 @@ This project uses [Poetry](https://python-poetry.org/) for dependency management
    poetry install
    ```
 
-3. Run the server:
+3. Set up environment variables:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your OpenAI API key
+   ```
+
+4. Run the server:
    ```bash
    poetry run uvicorn main_sqlite:app --reload
    ```

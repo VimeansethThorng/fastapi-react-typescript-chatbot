@@ -1,37 +1,54 @@
 
-# 🤖 AI Chatbot - Full Stack Application
+# 🤖 FastAPI-React TypeScript Chatbot
 
 A modern, full-stack chatbot application built with React (TypeScript) frontend and FastAPI backend, featuring conversation management, real-time chat, and AI-powered responses using OpenAI's GPT model.
+
+[![GitHub Stars](https://img.shields.io/github/stars/VimeansethThorng/fastapi-react-typescript-chatbot?style=social)](https://github.com/VimeansethThorng/fastapi-react-typescript-chatbot)
+[![License](https://img.shields.io/github/license/VimeansethThorng/fastapi-react-typescript-chatbot)](https://github.com/VimeansethThorng/fastapi-react-typescript-chatbot/blob/main/LICENSE)
 
 ## ✨ Features
 
 - 💬 **Real-time Chat Interface** - Seamless conversation with AI assistant
-- 📚 **Conversation History** - All chats are saved and retrievable
+- 📚 **Conversation History** - All chats are saved and retrievable  
 - 🗑️ **Delete Conversations** - Remove unwanted conversation history
 - 🔄 **Auto-refresh** - Conversation list updates automatically every 30 seconds
 - 👤 **User Avatars** - Visual distinction between user and AI messages
 - 📱 **Responsive Design** - Works on desktop and mobile devices
 - 🎨 **Modern UI** - Clean, professional interface with custom CSS styling
+- 📊 **Rich Content Support** - Tables, code blocks, and mathematical equations
+- 🚀 **One-command Setup** - Start entire stack with a single script
+- 📦 **Poetry Integration** - Modern Python dependency management
 
 ## 🏗️ Tech Stack
 
 ### Frontend
 - **React 18** with TypeScript
-- **Custom CSS** (no external UI frameworks)
-- **Responsive Design** with modern gradients and animations
+- **React Markdown** with syntax highlighting
+- **KaTeX** for mathematical equations
+- **Custom CSS** with responsive design
+- **Modern UI Components** with animations
 
-### Backend
+### Backend  
 - **FastAPI** (Python web framework)
+- **Poetry** for dependency management
 - **SQLite** database for conversation storage
 - **OpenAI API** for AI responses
 - **CORS** enabled for frontend communication
+- **Pydantic** for data validation
+
+### Development & Deployment
+- **GitHub CLI** for repository management
+- **Hot reload** for development
+- **Environment variables** with `.env.example`
+- **Comprehensive `.gitignore`**
 
 ## 📋 Prerequisites
 
 Before running the application, make sure you have:
 
 - **Node.js** (v16 or higher) and **npm**
-- **Python** (v3.8 or higher)
+- **Python** (v3.8.1 or higher) 
+- **Poetry** (will be auto-installed by start script)
 - **OpenAI API Key** (get one from [OpenAI Platform](https://platform.openai.com/))
 
 ## 🚀 Quick Start
