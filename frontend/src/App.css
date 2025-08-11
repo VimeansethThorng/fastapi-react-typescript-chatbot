@@ -1,38 +1,109 @@
+/**
+ * APP.CSS - React Application Component Styles
+ * 
+ * This file contains the default styles for React application components.
+ * While most of our chatbot styling is in index.css, this file maintains
+ * the standard React component styles and could be used for app-specific
+ * components that don't fit the main chatbot interface.
+ * 
+ * ===== SECTIONS =====
+ * 1. App Component Base Styles
+ * 2. React Logo Animation and Display
+ * 3. Default Header Component Styles
+ * 4. Link Styling
+ * 5. Animation Keyframes
+ * 
+ * Note: Most of these styles are from the default Create React App template
+ * and may not be actively used in the current chatbot implementation.
+ */
+
+/* ===== APP COMPONENT BASE STYLES ===== */
+/**
+ * App Component Root
+ * 
+ * Base styling for the main App component
+ * Sets default text alignment for the entire application
+ */
 .App {
-  text-align: center;
+  text-align: center;                     /* Center-align text by default */
 }
 
+/* ===== REACT LOGO COMPONENT ===== */
+/**
+ * App Logo Display
+ * 
+ * Controls the size and interaction of the React logo
+ * Uses viewport-relative sizing for responsive behavior
+ */
 .App-logo {
-  height: 40vmin;
-  pointer-events: none;
+  height: 40vmin;                         /* Responsive height based on viewport */
+  pointer-events: none;                   /* Prevent mouse interactions with logo */
 }
 
+/**
+ * Logo Animation Preference Check
+ * 
+ * Respects user's motion preferences for accessibility
+ * Only animates if user hasn't requested reduced motion
+ */
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
+    /* Infinite spinning animation for the React logo */
     animation: App-logo-spin infinite 20s linear;
   }
 }
 
+/* ===== DEFAULT HEADER COMPONENT ===== */
+/**
+ * App Header - Default React Template Header
+ * 
+ * Standard header layout from Create React App template
+ * Features:
+ * - Dark background with high contrast
+ * - Full viewport height
+ * - Centered content layout
+ * - Responsive typography
+ * 
+ * Note: This may not be used in the current chatbot implementation
+ */
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  background-color: #282c34;              /* Dark gray background */
+  min-height: 100vh;                      /* Full viewport height minimum */
+  
+  /* Flexbox layout for centered content */
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  flex-direction: column;                 /* Stack elements vertically */
+  align-items: center;                    /* Horizontal center alignment */
+  justify-content: center;                /* Vertical center alignment */
+  
+  /* Responsive typography */
+  font-size: calc(10px + 2vmin);          /* Viewport-relative font size */
+  color: white;                           /* White text for contrast */
 }
 
+/* ===== LINK STYLING ===== */
+/**
+ * App Link Component
+ * 
+ * Default styling for links within the App component
+ * Uses React's signature blue color
+ */
 .App-link {
-  color: #61dafb;
+  color: #61dafb;                         /* React signature blue color */
 }
 
+/* ===== ANIMATION KEYFRAMES ===== */
+/**
+ * Logo Spin Animation
+ * 
+ * Creates a continuous 360-degree rotation for the React logo
+ * Smooth, infinite rotation over 20 seconds
+ */
 @keyframes App-logo-spin {
   from {
-    transform: rotate(0deg);
+    transform: rotate(0deg);              /* Start at 0 degrees */
   }
   to {
-    transform: rotate(360deg);
+    transform: rotate(360deg);            /* End at 360 degrees (full rotation) */
   }
 }
