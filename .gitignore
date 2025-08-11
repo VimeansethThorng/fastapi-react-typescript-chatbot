@@ -394,3 +394,8 @@ dmypy.json
 *.zip
 *.tar.gz
 *.rar
+
+# random
+demo-acc.md
+git.md
+
