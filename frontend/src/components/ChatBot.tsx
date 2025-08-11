@@ -50,10 +50,6 @@ const ChatBot: React.FC = () => {
    * Auto-scroll to bottom of messages container
    * Provides smooth scrolling behavior for better UX
    */
-  /**
-   * Auto-scroll to bottom of messages container
-   * Provides smooth scrolling behavior for better UX
-   */
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -66,10 +62,6 @@ const ChatBot: React.FC = () => {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  /**
-   * Handle conversation selection from sidebar
-   * @param fullConversation - Contains conversation metadata and all messages
-   */
   /**
    * Handle conversation selection from sidebar
    * @param fullConversation - Contains conversation metadata and all messages
@@ -93,10 +85,6 @@ const ChatBot: React.FC = () => {
     }
   };
 
-  /**
-   * Handle sending a new message to the AI assistant
-   * @param messageContent - The user's message text
-   */
   /**
    * Handle sending a new message to the AI assistant
    * @param messageContent - The user's message text
@@ -162,9 +150,6 @@ const ChatBot: React.FC = () => {
   /**
    * Start a new conversation by clearing current state
    */
-  /**
-   * Start a new conversation by clearing current state
-   */
   const handleNewConversation = () => {
     setMessages([]);
     setConversationId(null);
@@ -172,6 +157,7 @@ const ChatBot: React.FC = () => {
 
   // RENDER UI
   return (
+    // whole app
     <div className="app-container">
       {/* LEFT SIDEBAR - Conversation History */}
       <div className="conversations-sidebar">
