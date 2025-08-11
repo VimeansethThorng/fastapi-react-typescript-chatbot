@@ -1,10 +1,10 @@
-# React Frontend Documentation
+# ⚛️ React TypeScript Frontend Documentation
 
 ## Overview
 
-This is a modern React frontend built with TypeScript for a chatbot application. It provides an intuitive chat interface with conversation management, real-time messaging, and seamless integration with the FastAPI backend.
+This is a modern React frontend built with TypeScript for a chatbot application. It provides an intuitive chat interface with conversation management, real-time messaging, rich content rendering (tables, code, equations), and seamless integration with the FastAPI backend.
 
-## Architecture
+## 🏗️ Architecture
 
 ```mermaid
 graph TB
@@ -25,13 +25,36 @@ graph TB
     end
     
     subgraph "Component Tree"
-        CHATBOT --> MESSAGEBUBBLE[MessageBubble.tsx]
-        CHATBOT --> MESSAGEINPUT[MessageInput.tsx]
-        CHATBOT --> TYPINGINDICATOR[TypingIndicator.tsx]
-        CHATBOT --> ALLCONVERSATIONS[AllConversations.tsx]
-        ALLCONVERSATIONS --> LOADINGDOTS[LoadingDots.tsx]
+        CHATBOT --> MESSAGEBUBBLE[MessageBubble.tsx<br/>Rich Content Rendering]
+        CHATBOT --> MESSAGEINPUT[MessageInput.tsx<br/>Input Handler]
+        CHATBOT --> TYPINGINDICATOR[TypingIndicator.tsx<br/>Loading State]
+        CHATBOT --> ALLCONVERSATIONS[AllConversations.tsx<br/>History Manager]
+        ALLCONVERSATIONS --> LOADINGDOTS[LoadingDots.tsx<br/>Loading Animation]
+        CHATBOT --> CONFIRMDIALOG[ConfirmDialog.tsx<br/>Deletion Confirmation]
     end
 ```
+
+## 📦 Dependencies
+
+### Core Dependencies
+```json
+{
+  "react": "^19.1.1",
+  "react-dom": "^19.1.1", 
+  "typescript": "^4.9.5",
+  "react-markdown": "^9.0.1",
+  "react-syntax-highlighter": "^15.6.1",
+  "katex": "^0.16.22",
+  "rehype-katex": "^7.0.0",
+  "remark-gfm": "^4.0.0",
+  "remark-math": "^6.0.0"
+}
+```
+
+### Rich Content Features
+- **Tables**: GitHub Flavored Markdown support via `remark-gfm`
+- **Code Blocks**: Syntax highlighting with `react-syntax-highlighter`
+- **Math Equations**: LaTeX rendering with `katex` and `rehype-katex`
 
 ## Core Components
 

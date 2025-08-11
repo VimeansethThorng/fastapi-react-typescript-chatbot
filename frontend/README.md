@@ -1,33 +1,44 @@
-# Getting Started with Create React App
+# ⚛️ React TypeScript Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is the frontend application for the FastAPI-React TypeScript Chatbot. Built with React 18, TypeScript, and modern dependencies for rich content rendering.
 
-## Available Scripts
+## ✨ Features
 
-In the project directory, you can run:
+- 🎨 **Modern UI**: Custom CSS with responsive design
+- 📝 **Rich Content**: Support for tables, code blocks, and math equations
+- ⚡ **Real-time Chat**: Seamless communication with FastAPI backend
+- 🔄 **Auto-refresh**: Conversation history updates automatically
+- 📱 **Responsive**: Works on desktop and mobile devices
 
-### `npm start`
+## 🚀 Quick Start
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Using the Root Script (Recommended)
+```bash
+# From the project root
+./start.sh
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### Manual Setup
+```bash
+# Install dependencies
+npm install
 
-### `npm test`
+# Start development server
+npm start
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 📦 Dependencies
 
-### `npm run build`
+### Core Framework
+- **React 18** with TypeScript
+- **Create React App** for build tooling
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Rich Content Rendering
+- **react-markdown**: Markdown parsing and rendering
+- **react-syntax-highlighter**: Code syntax highlighting
+- **katex**: Mathematical equation rendering
+- **remark-gfm**: GitHub Flavored Markdown (tables)
+- **remark-math** & **rehype-katex**: Math equation support
 
 ### `npm run eject`
 

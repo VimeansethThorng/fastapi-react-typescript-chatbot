@@ -1,53 +1,59 @@
-# FastAPI-React Chatbot Application
+# 🚀 FastAPI-React TypeScript Chatbot - Full Stack Architecture
 
-## Application Architecture
+## 🌟 Application Overview
 
-This is a full-stack chatbot application built with FastAPI (backend) and React (frontend) using SQLite as the database.
+This is a modern full-stack chatbot application built with FastAPI (backend) and React TypeScript (frontend) using SQLite as the database. The application features rich content rendering, modern dependency management with Poetry, and one-command deployment.
 
-## Application Flow Diagram
+## 🏗️ Application Flow Diagram
 
 ```mermaid
 graph TB
     %% User Interface Layer
     subgraph "Frontend (React + TypeScript)"
-        UI[User Interface]
-        APP[App.tsx]
-        CHATBOT[ChatBot.tsx]
-        COMPONENTS[Components]
-        API_CLIENT[api.ts]
-        TYPES[types.ts]
+        UI[User Interface<br/>Rich Content Rendering]
+        APP[App.tsx<br/>Main Application]
+        CHATBOT[ChatBot.tsx<br/>Chat Interface] 
+        COMPONENTS[Components<br/>MessageBubble, Input, etc.]
+        API_CLIENT[api.ts<br/>HTTP Client]
+        TYPES[types.ts<br/>TypeScript Definitions]
+        MARKDOWN[React Markdown<br/>Tables, Code, Math]
         
         UI --> APP
         APP --> CHATBOT
         CHATBOT --> COMPONENTS
         CHATBOT --> API_CLIENT
+        CHATBOT --> MARKDOWN
         API_CLIENT --> TYPES
     end
     
     %% Network Layer
-    HTTP[HTTP Requests<br/>localhost:3000 → localhost:8000]
+    HTTP[HTTP/HTTPS Requests<br/>localhost:3000 → localhost:8000<br/>CORS Enabled]
     
     %% Backend Layer
-    subgraph "Backend (FastAPI)"
+    subgraph "Backend (FastAPI + Poetry)"
         MAIN[main_sqlite.py<br/>FastAPI App + CORS]
         MODELS[models.py<br/>Pydantic Models]
-        CHAT_SERVICE[chat_service_sqlite.py<br/>Business Logic]
-        DB_MANAGER[database_sqlite.py<br/>Database Manager]
-        CONFIG[config_sqlite.py<br/>Configuration]
+        CHAT_SERVICE[chat_service_sqlite.py<br/>OpenAI Integration]
+        DB_MANAGER[database_sqlite.py<br/>SQLite Manager]
+        CONFIG[config_sqlite.py<br/>Environment Config]
+        POETRY[pyproject.toml<br/>Poetry Dependencies]
     end
     
     %% Database Layer
     subgraph "Database (SQLite)"
-        SQLITE[(chatbot.db)]
-        CONVERSATIONS[conversations table]
-        MESSAGES[messages table]
+        SQLITE[(chatbot.db<br/>Local Storage)]
+        CONVERSATIONS[conversations table<br/>Chat Sessions]
+        MESSAGES[messages table<br/>User + AI Messages]
         
         SQLITE --> CONVERSATIONS
         SQLITE --> MESSAGES
     end
     
+    %% External Services
+    OPENAI[OpenAI API<br/>GPT-4 Model]
+    
     %% Connections
-    API_CLIENT -.->|POST /chat<br/>GET /conversations| HTTP
+    API_CLIENT -.->|POST /chat<br/>GET /conversations<br/>DELETE /conversations| HTTP
     HTTP -.-> MAIN
     
     MAIN --> MODELS
