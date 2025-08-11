@@ -1662,7 +1662,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  /* 
+    Sets the stacking order of the element to ensure it appears above most other elements.
+    Applies a fade-in animation effect lasting 0.2 seconds with an ease-out timing function.
+  */
+  z-index: 10000;
   animation: fadeIn 0.2s ease-out;
 }
 
@@ -1763,11 +1767,24 @@ body {
   border-color: #1d4ed8;
 }
 
+/* 
+  Defines a keyframes animation named 'fadeIn' that smoothly transitions 
+  an element's opacity from 0 (fully transparent) to 1 (fully opaque).
+  This animation can be used to create a fade-in effect for elements 
+  when they appear on the page.
+*/
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
+/**
+ * slideIn Animation Keyframes
+ * 
+ * Smoothly animates an element from slightly above and scaled down (opacity 0, translateY(-20px), scale(0.95))
+ * to its final position and size (opacity 1, translateY(0), scale(1)).
+ * Used for dialog/modal entrances to create a subtle, modern slide-in effect.
+ */
 @keyframes slideIn {
   from {
     opacity: 0;

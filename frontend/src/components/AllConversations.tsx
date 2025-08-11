@@ -51,6 +51,9 @@ const AllConversations: React.FC<AllConversationsProps> = ({
 }) => {
   // State management for conversations list and UI states
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+  /**
+   * State variable indicating whether the conversations are currently loading.
+   */
   const [isLoading, setIsLoading] = useState(false);
   const [isAutoRefreshing, setIsAutoRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
