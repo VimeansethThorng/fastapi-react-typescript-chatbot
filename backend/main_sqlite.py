@@ -194,18 +194,6 @@ async def create_conversation(request: ConversationCreate):
         logger.error(f"Error creating conversation: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-# Create a new conversation for a user
-@app.post("/conversations", response_model=ConversationResponse)
-async def create_conversation(request: ConversationCreate):
-    try:
-        conversation_id = db_manager.create_conversation(request.user_id)
-        if not conversation_id:
-            raise HTTPException(status_code=500, detail="Failed to create conversation")
-        return ConversationResponse(id=conversation_id, user_id=request.user_id)
-    except Exception as e:
-        logger.error(f"Error creating conversation: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
-
 # Get all messages for a specific conversation
 @app.get("/conversations/{conversation_id}/messages")
 async def get_conversation_messages(conversation_id: int):

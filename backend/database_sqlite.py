@@ -46,8 +46,8 @@ class DatabaseManager:
             
             cursor.execute(create_conversations_table)
             cursor.execute(create_messages_table)
-            self.connection.commit()
-            logger.info("SQLite tables created successfully")
+            self.connection.commit()    # commits the current transaction to the database
+            logger.info("SQLite tables created successfully")   # write log to the Terminal
             
         except Exception as e:
             logger.error(f"Error creating tables: {e}")
