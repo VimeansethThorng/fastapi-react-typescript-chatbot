@@ -1,185 +1,407 @@
-/* Modern Chatbot Styling - Clean & Professional */
+/**
+ * INDEX.CSS - Main Stylesheet for FastAPI React TypeScript Chatbot
+ * 
+ * This file contains the primary styles for the entire chatbot application.
+ * It includes comprehensive styling for:
+ * 
+ * ===== MAIN SECTIONS =====
+ * 1. Global Resets & Base Styles
+ * 2. Layout & Container Systems
+ * 3. Sidebar & Navigation Components
+ * 4. Chat Interface & Message Bubbles
+ * 5. Form Controls & Input Elements
+ * 6. Animation & Transition Effects
+ * 7. Responsive Design & Media Queries
+ * 8. Component-Specific Styling
+ * 
+ * ===== DESIGN SYSTEM =====
+ * Color Palette:
+ * - Primary: #6366f1 (Indigo) - Main brand color
+ * - Secondary: #8b5cf6 (Purple) - Accent color
+ * - Success: #10b981 (Emerald) - Success states
+ * - Background: #f9fafb (Cool Gray) - Main background
+ * - Text: #1e293b (Slate) - Primary text
+ * - Borders: #e2e8f0 (Light Gray) - Subtle borders
+ * 
+ * Typography:
+ * - System font stack for optimal performance
+ * - Consistent sizing scale (0.8rem - 2rem)
+ * - Font weights: 400 (normal), 500 (medium), 600 (semibold)
+ * 
+ * Spacing System:
+ * - Base unit: 4px (0.25rem)
+ * - Common values: 8px, 12px, 16px, 20px, 24px, 32px
+ * - Consistent padding/margin throughout
+ * 
+ * Animations:
+ * - Smooth transitions (0.2s ease)
+ * - Subtle hover effects
+ * - Loading animations for better UX
+ */
 
-/* Import KaTeX CSS for math rendering */
+/* ===== EXTERNAL DEPENDENCIES ===== */
+/* Import KaTeX CSS for mathematical equation rendering */
 @import 'katex/dist/katex.min.css';
 
+/* ===== GLOBAL RESETS & BASE STYLES ===== */
+/**
+ * Universal box-sizing and reset
+ * Ensures consistent sizing calculations across all elements
+ */
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+  box-sizing: border-box;  /* Include padding and border in element's total width/height */
+  margin: 0;               /* Remove default margins */
+  padding: 0;              /* Remove default padding */
 }
 
+/**
+ * Body element - Global typography and layout foundation
+ * Sets up the base visual environment for the entire application
+ */
 body {
+  /* System font stack for optimal cross-platform typography */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: #f9fafb;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
+  
+  /* Font rendering optimizations for crisp text */
+  -webkit-font-smoothing: antialiased;     /* Smooth fonts on macOS/iOS */
+  -moz-osx-font-smoothing: grayscale;      /* Smooth fonts on macOS Firefox */
+  
+  /* Layout and appearance */
+  background: #f9fafb;                     /* Light gray background */
+  height: 100vh;                          /* Full viewport height */
+  width: 100vw;                           /* Full viewport width */
+  overflow: hidden;                        /* Prevent body scrolling */
 }
 
+/**
+ * Root App container
+ * Sets up the main application viewport without any margins or padding
+ */
 .App {
-  height: 100vh;
-  width: 100vw;
-  padding: 0;
-  margin: 0;
+  height: 100vh;                          /* Full viewport height */
+  width: 100vw;                           /* Full viewport width */
+  padding: 0;                             /* No internal padding */
+  margin: 0;                              /* No external margins */
 }
 
-/* Chat Container */
-/* Main Layout - Sidebar */
+/* ===== MAIN LAYOUT SYSTEM ===== */
+/**
+ * App container - Primary layout wrapper
+ * 
+ * Uses flexbox to create a two-column layout:
+ * - Left: Conversations sidebar (fixed width)
+ * - Right: Chat interface (flexible width)
+ * 
+ * Key features:
+ * - Full viewport coverage
+ * - No scrolling at root level
+ * - Responsive design foundation
+ */
 .app-container {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  margin: 0;
-  background: #f9fafb;
-  overflow: hidden;
+  display: flex;                          /* Flexbox for side-by-side layout */
+  height: 100vh;                          /* Full viewport height */
+  width: 100vw;                           /* Full viewport width */
+  margin: 0;                              /* No external margins */
+  background: #f9fafb;                    /* Light gray background */
+  overflow: hidden;                       /* Prevent container scrolling */
 }
 
-/* Left Sidebar - Conversations */
+/* ===== SIDEBAR SYSTEM ===== */
+/**
+ * Left Sidebar - Conversations panel
+ * 
+ * Features:
+ * - Fixed width with minimum width constraint
+ * - Gradient background for visual hierarchy
+ * - Vertical flex layout for header/content separation
+ * - Border separator from main content
+ * - Internal scroll handling
+ */
 .conversations-sidebar {
-  width: 350px;
-  min-width: 300px;
+  width: 350px;                           /* Fixed sidebar width */
+  min-width: 300px;                       /* Minimum width for responsiveness */
+  
+  /* Gradient background for visual depth */
   background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  border-right: 1px solid #e2e8f0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  
+  border-right: 1px solid #e2e8f0;       /* Subtle right border separator */
+  display: flex;                          /* Vertical flex container */
+  flex-direction: column;                 /* Stack header and content vertically */
+  overflow: hidden;                       /* Prevent sidebar overflow */
   height: 100vh;
 }
 
+/**
+ * Sidebar Header - Top section of conversations panel
+ * 
+ * Contains:
+ * - Title/branding
+ * - New chat button
+ * - Navigation controls
+ * 
+ * Features:
+ * - Gradient background for visual separation
+ * - Flexbox layout for title/button alignment
+ * - Bottom border to separate from content
+ */
 .sidebar-header {
-  padding: 20px;
-  border-bottom: 1px solid #f1f5f9;
+  padding: 20px;                          /* Internal spacing */
+  border-bottom: 1px solid #f1f5f9;       /* Separator from content */
+  
+  /* Subtle gradient background */
   background: linear-gradient(135deg, #fafbfc 0%, #f8fafc 100%);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  
+  display: flex;                          /* Horizontal flexbox layout */
+  align-items: center;                    /* Vertical center alignment */
+  justify-content: space-between;         /* Space between title and button */
 }
 
+/**
+ * Sidebar header title
+ * Typography and spacing for the main sidebar heading
+ */
 .sidebar-header h3 {
-  margin: 0;
-  color: #1e293b;
-  font-size: 1.1rem;
-  font-weight: 600;
+  margin: 0;                              /* Remove default heading margins */
+  color: #1e293b;                         /* Dark slate text color */
+  font-size: 1.1rem;                      /* Slightly larger than body text */
+  font-weight: 600;                       /* Semi-bold weight */
 }
 
+/**
+ * New Chat Button - Primary action button in sidebar
+ * 
+ * Features:
+ * - Gradient background with brand colors
+ * - Hover effects with transform animation
+ * - Rounded corners for modern appearance
+ * - Consistent typography with other buttons
+ */
 .new-chat-button-sidebar {
+  /* Gradient background using brand colors */
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
+  
+  color: white;                           /* White text for contrast */
+  border: none;                           /* Remove default button border */
+  padding: 8px 16px;                      /* Comfortable click target */
+  border-radius: 8px;                     /* Rounded corners */
+  cursor: pointer;                        /* Pointer cursor on hover */
+  
+  /* Typography */
+  font-size: 0.9rem;                      /* Slightly smaller than body */
+  font-weight: 500;                       /* Medium weight */
+  
+  /* Smooth transitions for interactions */
   transition: all 0.2s ease;
 }
 
+/**
+ * New Chat Button Hover State
+ * Enhanced interactivity with color change and subtle lift effect
+ */
 .new-chat-button-sidebar:hover {
+  /* Darker gradient on hover */
   background: linear-gradient(135deg, #5b5bd6 0%, #7c3aed 100%);
+  
+  /* Subtle lift effect */
   transform: translateY(-1px);
 }
 
+/**
+ * Conversations List Container - Scrollable content area
+ * 
+ * This container manages the scrollable area for conversation items
+ * Uses flexbox properties to fill remaining space after header
+ */
 .conversations-list-container {
-  flex: 1;
-  overflow: hidden;
-  height: 100%;
-  min-height: 0;
+  flex: 1;                                /* Grow to fill remaining space */
+  overflow: hidden;                       /* Prevent container overflow */
+  height: 100%;                           /* Full available height */
+  min-height: 0;                          /* Allow flex shrinking */
 }
 
+/**
+ * Conversations Sidebar Panel - Main content wrapper
+ * 
+ * Manages the layout of all sidebar content including loading states,
+ * error messages, and the actual conversations list
+ */
 .conversations-sidebar-panel {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
+  height: 100%;                           /* Full container height */
+  display: flex;                          /* Vertical flex layout */
+  flex-direction: column;                 /* Stack elements vertically */
+  min-height: 0;                          /* Allow flex shrinking */
 }
 
+/**
+ * Auto-refresh Indicator - Visual feedback for background updates
+ * 
+ * Shows a small green pulsing dot when conversations are being
+ * automatically refreshed in the background (every 30 seconds)
+ */
 .auto-refresh-indicator {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 10;
+  position: absolute;                     /* Positioned relative to sidebar */
+  top: 8px;                               /* Distance from top */
+  right: 8px;                             /* Distance from right edge */
+  z-index: 10;                            /* Above other content */
 }
 
+/**
+ * Auto-refresh Dot Animation
+ * 
+ * Small green dot with pulsing animation to indicate active refresh
+ * Uses emerald color to suggest positive/active state
+ */
 .auto-refresh-dot {
-  width: 8px;
-  height: 8px;
-  background: #10b981;
-  border-radius: 50%;
-  animation: pulse-green 1.5s ease-in-out infinite;
+  width: 8px;                             /* Small dot size */
+  height: 8px;                            /* Circular shape */
+  background: #10b981;                    /* Emerald green color */
+  border-radius: 50%;                     /* Perfect circle */
+  animation: pulse-green 1.5s ease-in-out infinite; /* Smooth pulsing */
 }
 
+/**
+ * Pulse Green Animation Keyframes
+ * 
+ * Creates a smooth pulsing effect for the auto-refresh indicator
+ * Animates both opacity and scale for visual appeal
+ */
 @keyframes pulse-green {
   0%, 100% {
-    opacity: 0.6;
-    transform: scale(1);
+    opacity: 0.6;                         /* Semi-transparent at start/end */
+    transform: scale(1);                  /* Normal size */
   }
   50% {
-    opacity: 1;
-    transform: scale(1.2);
+    opacity: 1;                           /* Fully opaque at peak */
+    transform: scale(1.2);                /* Slightly larger */
   }
 }
 
+/* ===== CONVERSATIONS LIST COMPONENTS ===== */
+/**
+ * Conversations List - Scrollable container for conversation items
+ * 
+ * Features:
+ * - Flexible height to fill available space
+ * - Vertical scrolling when content overflows
+ * - Zero padding for edge-to-edge items
+ */
 .conversations-sidebar-panel .conversations-list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0;
-  min-height: 0;
+  flex: 1;                                /* Grow to fill available space */
+  overflow-y: auto;                       /* Vertical scroll when needed */
+  padding: 0;                             /* No internal padding */
+  min-height: 0;                          /* Allow flex shrinking */
 }
 
+/**
+ * Individual Conversation Item
+ * 
+ * Represents a single conversation in the sidebar list
+ * Features:
+ * - Hover effects for interactivity
+ * - Flexbox layout for content organization
+ * - Smooth transitions for state changes
+ * - Delete button integration
+ */
 .conversations-sidebar-panel .conversation-item {
-  padding: 16px 20px;
-  border-bottom: 1px solid #f1f5f9;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  padding: 16px 20px;                     /* Comfortable internal spacing */
+  border-bottom: 1px solid #f1f5f9;       /* Subtle separator between items */
+  cursor: pointer;                        /* Indicate clickable element */
+  transition: all 0.2s ease;              /* Smooth state transitions */
+  
+  /* Flexbox layout for content organization */
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
+  align-items: center;                    /* Vertical center alignment */
+  justify-content: space-between;         /* Space between content and actions */
+  position: relative;                     /* For absolute positioned children */
 }
 
+/**
+ * Conversation Item Hover State
+ * 
+ * Provides visual feedback when user hovers over conversation items
+ * Reveals delete button and applies subtle background change
+ */
 .conversations-sidebar-panel .conversation-item:hover {
+  /* Subtle gradient background on hover */
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
+/**
+ * Show delete button on hover
+ * Reveals the delete action when user hovers over conversation item
+ */
 .conversations-sidebar-panel .conversation-item:hover .delete-conversation-btn {
-  opacity: 1;
+  opacity: 1;                             /* Make delete button visible */
 }
 
+/**
+ * Active Conversation Item State
+ * 
+ * Visual indicator for the currently selected/active conversation
+ * Uses brand colors and left border accent
+ */
 .conversations-sidebar-panel .conversation-item.active {
+  /* Blue tinted background for active state */
   background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  
+  /* Left accent border using brand color */
   border-left: 4px solid #6366f1;
 }
 
+/**
+ * Conversation Preview - Main content area of conversation item
+ * 
+ * Contains the conversation title, preview text, and metadata
+ * Uses flexible layout to fill available space
+ */
 .conversation-preview {
-  flex: 1;
-  min-width: 0;
+  flex: 1;                                /* Grow to fill available space */
+  min-width: 0;                           /* Allow text truncation */
 }
 
+/**
+ * Delete Conversation Button - Hidden action button
+ * 
+ * Features:
+ * - Hidden by default (opacity: 0)
+ * - Revealed on parent hover
+ * - Rounded appearance with hover effects
+ * - Prevents accidental clicks with proper sizing
+ */
 .delete-conversation-btn {
-  background: none;
-  border: none;
-  padding: 8px;
-  cursor: pointer;
-  opacity: 0;
-  transition: all 0.2s ease;
-  border-radius: 6px;
-  margin-left: 8px;
-  flex-shrink: 0;
-  font-size: 1rem;
+  background: none;                       /* Transparent background */
+  border: none;                           /* Remove default button border */
+  padding: 8px;                           /* Comfortable click target */
+  cursor: pointer;                        /* Pointer cursor on hover */
+  opacity: 0;                             /* Hidden by default */
+  transition: all 0.2s ease;              /* Smooth visibility transition */
+  border-radius: 6px;                     /* Rounded corners */
+  margin-left: 8px;                       /* Space from conversation content */
+  flex-shrink: 0;                         /* Don't shrink when space is limited */
+  font-size: 1rem;                        /* Readable emoji size */
 }
 
+/**
+ * Delete Button Hover State
+ * 
+ * Provides visual feedback with red tint and slight scale animation
+ * Clearly indicates destructive action
+ */
 .delete-conversation-btn:hover {
-  background: rgba(239, 68, 68, 0.1);
-  transform: scale(1.1);
+  background: rgba(239, 68, 68, 0.1);     /* Light red background */
+  transform: scale(1.1);                  /* Slightly larger on hover */
 }
 
+/**
+ * Delete Button Active State
+ * 
+ * Brief scale-down effect when button is clicked
+ * Provides tactile feedback for user action
+ */
 .delete-conversation-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.95);                 /* Slightly smaller when pressed */
 }
 
 .conversations-sidebar-panel .conversation-text {
@@ -200,52 +422,101 @@ body {
   color: #6b7280;
 }
 
-/* Right Chat Area */
+/* ===== CHAT INTERFACE SYSTEM ===== */
+/**
+ * Right Chat Area - Main conversation interface
+ * 
+ * This is the primary content area where users interact with the chatbot
+ * Features:
+ * - Flexible layout that adapts to available space
+ * - Vertical stacking of header, messages, and input
+ * - Gradient background for visual appeal
+ * - Full height utilization
+ */
 .chat-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  flex: 1;                                /* Grow to fill remaining space after sidebar */
+  display: flex;                          /* Vertical flex layout */
+  flex-direction: column;                 /* Stack header, messages, input vertically */
+  
+  /* Subtle gradient background */
   background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
-  overflow: hidden;
-  height: 100vh;
-  width: 100%;
+  
+  overflow: hidden;                       /* Prevent container overflow */
+  height: 100vh;                          /* Full viewport height */
+  width: 100%;                            /* Full available width */
 }
 
-/* Update existing chat styles */
-
-/* Header */
-/* Chat header */
+/* ===== CHAT HEADER SECTION ===== */
+/**
+ * Chat Header - Top section of chat interface
+ * 
+ * Contains:
+ * - Current conversation title
+ * - Session information
+ * - Action buttons (if any)
+ * 
+ * Features:
+ * - Brand gradient background
+ * - Fixed height (doesn't scroll with messages)
+ * - White text for contrast
+ */
 .chat-header {
+  /* Brand gradient background */
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: white;
-  padding: 20px;
-  text-align: left;
-  flex-shrink: 0;
+  
+  color: white;                           /* White text for contrast */
+  padding: 20px;                          /* Comfortable internal spacing */
+  text-align: left;                       /* Left-aligned content */
+  flex-shrink: 0;                         /* Don't shrink when space is limited */
 }
 
+/**
+ * Chat Title - Main heading in chat header
+ * 
+ * Displays the current conversation title or default heading
+ */
 .chat-title {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
+  margin: 0;                              /* Remove default heading margins */
+  font-size: 1.5rem;                      /* Large, prominent text */
+  font-weight: 600;                       /* Semi-bold weight */
 }
 
-/* Messages Container */
+/* ===== MESSAGES DISPLAY AREA ===== */
+/**
+ * Messages Container - Scrollable chat history
+ * 
+ * This is where all conversation messages are displayed
+ * Features:
+ * - Flexible height to fill available space
+ * - Vertical scrolling for message history
+ * - Proper spacing between messages
+ * - Custom scrollbar styling
+ * - Light background for readability
+ */
 .messages-container {
-  flex: 1;
-  overflow-y: auto;
-  padding: 32px;
-  background: #fafafa;
+  flex: 1;                                /* Grow to fill space between header and input */
+  overflow-y: auto;                       /* Vertical scroll for message history */
+  padding: 32px;                          /* Comfortable internal spacing */
+  background: #fafafa;                    /* Light background for messages */
+  
+  /* Flexbox layout for message organization */
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  flex-direction: column;                 /* Stack messages vertically */
+  gap: 16px;                              /* Consistent spacing between messages */
 }
 
+/**
+ * Custom Scrollbar Styling for Messages Container
+ * 
+ * Provides a clean, minimal scrollbar that doesn't distract from content
+ * Only visible when needed (content overflows)
+ */
 .messages-container::-webkit-scrollbar {
-  width: 6px;
+  width: 6px;                             /* Thin scrollbar width */
 }
 
 .messages-container::-webkit-scrollbar-track {
-  background: transparent;
+  background: transparent;                /* Invisible track */
 }
 
 .messages-container::-webkit-scrollbar-thumb {
@@ -289,64 +560,136 @@ body {
   line-height: 1.6;
 }
 
-/* Message Bubbles */
+/* ===== MESSAGE BUBBLE SYSTEM ===== */
+/**
+ * Message Bubble Container
+ * 
+ * Base container for individual chat messages (both user and assistant)
+ * Features:
+ * - Flexbox layout for avatar and content alignment
+ * - Smooth fade-in animation when messages appear
+ * - Consistent spacing between messages
+ * - Flexible positioning for different message types
+ */
 .message-bubble {
-  display: flex;
-  align-items: flex-end;
-  margin-bottom: 16px;
-  gap: 12px;
-  animation: fadeInUp 0.3s ease-out;
+  display: flex;                          /* Flexbox for avatar and content */
+  align-items: flex-end;                  /* Align to bottom for natural chat flow */
+  margin-bottom: 16px;                    /* Consistent spacing between messages */
+  gap: 12px;                              /* Space between avatar and content */
+  animation: fadeInUp 0.3s ease-out;      /* Smooth entrance animation */
 }
 
+/**
+ * Message Avatar Container
+ * 
+ * Circular avatar display for message senders (user or assistant)
+ * Features:
+ * - Fixed size for consistency
+ * - Centered content (emoji or icon)
+ * - Prevents shrinking in flex layout
+ */
 .message-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  width: 40px;                            /* Fixed avatar width */
+  height: 40px;                           /* Fixed avatar height (perfect circle) */
+  border-radius: 50%;                     /* Perfect circle shape */
+  
+  /* Flexbox for centering avatar content */
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
+  align-items: center;                    /* Vertical center */
+  justify-content: center;                /* Horizontal center */
+  
+  font-size: 20px;                        /* Readable emoji/icon size */
+  flex-shrink: 0;                         /* Don't shrink in flex layout */
 }
 
+/**
+ * Assistant Avatar Styling
+ * 
+ * Brand-colored avatar for AI assistant messages
+ * Features gradient background and subtle shadow
+ */
 .assistant-avatar {
+  /* Brand gradient background */
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: white;
+  
+  color: white;                           /* White text/emoji for contrast */
+  
+  /* Subtle shadow with brand color */
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 }
 
+/**
+ * User Avatar Styling
+ * 
+ * Green-themed avatar for user messages
+ * Distinguishes user messages from assistant responses
+ */
 .user-avatar {
+  /* Green gradient background */
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
+  
+  color: white;                           /* White text/emoji for contrast */
+  
+  /* Subtle shadow with green tint */
   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
 }
 
+/**
+ * Fade In Up Animation Keyframes
+ * 
+ * Creates smooth entrance effect for new messages
+ * Combines opacity and upward movement for natural feel
+ */
 @keyframes fadeInUp {
   from {
-    opacity: 0;
-    transform: translateY(10px);
+    opacity: 0;                           /* Start invisible */
+    transform: translateY(10px);          /* Start slightly below final position */
   }
   to {
-    opacity: 1;
-    transform: translateY(0);
+    opacity: 1;                           /* End fully visible */
+    transform: translateY(0);             /* End at final position */
   }
 }
 
+/**
+ * User Message Bubble Layout
+ * 
+ * Aligns user messages to the right side of the chat
+ * Creates typical chat app layout where user messages appear on right
+ */
 .message-bubble.user {
-  justify-content: flex-end;
+  justify-content: flex-end;              /* Align user messages to right */
 }
 
+/**
+ * Assistant Message Bubble Layout
+ * 
+ * Aligns assistant messages to the left side of the chat
+ * Standard position for bot/assistant responses
+ */
 .message-bubble.assistant {
-  justify-content: flex-start;
+  justify-content: flex-start;            /* Align assistant messages to left */
 }
 
+/**
+ * Message Content Container
+ * 
+ * The actual content bubble containing the message text
+ * Features:
+ * - Responsive width with maximum constraint
+ * - Comfortable padding for readability
+ * - Rounded corners for modern appearance
+ * - Word wrapping for long messages
+ */
 .message-content {
-  max-width: 70%;
-  padding: 16px 20px;
-  border-radius: 20px;
-  font-size: 1rem;
-  line-height: 1.5;
-  word-wrap: break-word;
+  max-width: 70%;                         /* Limit width for readability */
+  padding: 16px 20px;                     /* Comfortable internal spacing */
+  border-radius: 20px;                    /* Rounded bubble appearance */
+  
+  /* Typography settings */
+  font-size: 1rem;                        /* Standard readable size */
+  line-height: 1.5;                       /* Comfortable line spacing */
+  word-wrap: break-word;                  /* Handle long words gracefully */
   position: relative;
   text-align: left;
 }
@@ -640,77 +983,159 @@ body {
   background: #ffffff;
   padding: 24px 32px;
   border-top: 1px solid #e5e7eb;
-  flex-shrink: 0;
+  flex-shrink: 0;                         /* Don't shrink when space is limited */
 }
 
+/* ===== MESSAGE INPUT SYSTEM ===== */
+/**
+ * Input Form Container
+ * 
+ * Contains the message input textarea and send button
+ * Features:
+ * - Horizontal flexbox layout
+ * - Aligned to bottom for auto-resize compatibility
+ * - Consistent spacing between elements
+ */
 .input-form {
-  display: flex;
-  gap: 12px;
-  align-items: flex-end;
+  display: flex;                          /* Horizontal flexbox layout */
+  gap: 12px;                              /* Space between input and button */
+  align-items: flex-end;                  /* Align to bottom for textarea auto-resize */
 }
 
+/**
+ * Message Input Textarea
+ * 
+ * Auto-resizing textarea for composing messages
+ * Features:
+ * - Flexible width to fill available space
+ * - Smooth focus transitions
+ * - Auto-resize between min and max heights
+ * - Consistent styling with design system
+ * - Disabled state handling
+ */
 .message-input {
-  flex: 1;
-  padding: 16px 20px;
-  border: 2px solid #e5e7eb;
-  border-radius: 16px;
-  outline: none;
-  font-size: 1rem;
-  line-height: 1.5;
-  font-family: inherit;
-  background: #f9fafb;
-  transition: all 0.3s ease;
-  resize: none;
-  min-height: 24px;
-  max-height: 120px;
+  flex: 1;                                /* Grow to fill available width */
+  padding: 16px 20px;                     /* Comfortable internal spacing */
+  border: 2px solid #e5e7eb;              /* Light gray border */
+  border-radius: 16px;                    /* Rounded corners */
+  outline: none;                          /* Remove default outline */
+  
+  /* Typography settings */
+  font-size: 1rem;                        /* Standard readable size */
+  line-height: 1.5;                       /* Comfortable line height */
+  font-family: inherit;                   /* Use system font stack */
+  
+  background: #f9fafb;                    /* Light background */
+  transition: all 0.3s ease;              /* Smooth state transitions */
+  resize: none;                           /* Disable manual resize (auto-resize handled in JS) */
+  
+  /* Height constraints for auto-resize */
+  min-height: 24px;                       /* Minimum single-line height */
+  max-height: 120px;                      /* Maximum height before scrolling */
 }
 
+/**
+ * Message Input Focus State
+ * 
+ * Enhanced visual feedback when input is focused
+ * Uses brand colors and subtle shadow for clear indication
+ */
 .message-input:focus {
-  border-color: #6366f1;
-  background: #ffffff;
+  border-color: #6366f1;                  /* Brand color border */
+  background: #ffffff;                    /* Pure white background */
+  
+  /* Brand-colored focus ring */
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
 }
 
+/**
+ * Message Input Disabled State
+ * 
+ * Visual indication when input is disabled during message processing
+ */
 .message-input:disabled {
-  background: #f3f4f6;
-  color: #9ca3af;
-  cursor: not-allowed;
+  background: #f3f4f6;                    /* Grayed out background */
+  color: #9ca3af;                         /* Muted text color */
+  cursor: not-allowed;                    /* Clear interaction feedback */
 }
 
+/**
+ * Placeholder Text Styling
+ * 
+ * Subtle styling for placeholder text to guide users
+ */
 .message-input::placeholder {
-  color: #9ca3af;
+  color: #9ca3af;                         /* Muted gray color */
 }
 
+/**
+ * Send Button
+ * 
+ * Primary action button for sending messages
+ * Features:
+ * - Brand gradient background
+ * - Hover and click animations
+ * - Disabled state handling
+ * - Icon/text content support
+ * - Consistent sizing with input
+ */
 .send-button {
-  padding: 16px 24px;
+  padding: 16px 24px;                     /* Comfortable click target */
+  
+  /* Brand gradient background */
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: white;
-  border: none;
-  border-radius: 16px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 1rem;
-  transition: all 0.3s ease;
+  
+  color: white;                           /* White text for contrast */
+  border: none;                           /* Remove default button border */
+  border-radius: 16px;                    /* Match input border radius */
+  cursor: pointer;                        /* Pointer cursor on hover */
+  
+  /* Typography */
+  font-weight: 600;                       /* Semi-bold text */
+  font-size: 1rem;                        /* Match input text size */
+  
+  transition: all 0.3s ease;              /* Smooth animations */
+  
+  /* Flexbox for icon/text layout */
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: center;                    /* Vertical center alignment */
+  gap: 8px;                               /* Space between icon and text */
+  
+  /* Subtle shadow with brand color */
   box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
 }
 
+/**
+ * Send Button Hover State
+ * 
+ * Interactive feedback with lift effect and enhanced shadow
+ */
 .send-button:hover:not(:disabled) {
-  transform: translateY(-1px);
+  transform: translateY(-1px);            /* Subtle lift effect */
+  
+  /* Enhanced shadow on hover */
   box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
 }
 
+/**
+ * Send Button Active State
+ * 
+ * Brief feedback when button is clicked
+ */
 .send-button:active:not(:disabled) {
-  transform: translateY(0);
+  transform: translateY(0);               /* Return to normal position */
 }
 
+/**
+ * Send Button Disabled State
+ * 
+ * Clear visual indication when button cannot be used
+ */
 .send-button:disabled {
-  background: #d1d5db;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+  background: #d1d5db;                    /* Gray background */
+  cursor: not-allowed;                    /* Clear interaction feedback */
+  transform: none;                        /* No hover effects */
+  box-shadow: none;                       /* No shadow when disabled */
 }
 
 /* Responsive Design */
