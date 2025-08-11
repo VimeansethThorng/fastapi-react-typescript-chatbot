@@ -173,6 +173,7 @@ storybook-static/
 
 # Environment variables
 .env
+!backend/.env.example
 .env.local
 .env.development.local
 .env.test.local
@@ -182,6 +183,7 @@ storybook-static/
 # Backend environment files
 backend/.env
 backend/.env.*
+!backend/.env.example
 
 # Frontend environment files  
 frontend/.env
