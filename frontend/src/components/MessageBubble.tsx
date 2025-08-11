@@ -37,6 +37,9 @@ interface MessageBubbleProps {
 const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   // Determine if this is a user message for conditional styling
   const isUser = message.role === 'user';
+  
+  // Ensure content is always a string to prevent type errors
+  const content: string = message.content || '';
 
   return (
     <div className={`message-bubble ${isUser ? 'user' : 'assistant'}`}>
@@ -62,6 +65,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
               rehypeKatex, // Renders LaTeX math expressions using KaTeX
             ]}
             skipHtml={false} // Allow HTML tags in markdown
+            children={content} // Explicitly pass content as children prop
             components={{
               /**
                * Custom code block renderer with syntax highlighting
@@ -98,9 +102,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
                 );
               },
             }}
-          >
-            {message.content} {/* The actual message text to be rendered */}
-          </ReactMarkdown>
+          />
         </div>
       </div>
       
