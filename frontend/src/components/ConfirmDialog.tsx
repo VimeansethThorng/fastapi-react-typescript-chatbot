@@ -96,7 +96,6 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           </button>
           
           {/* Confirm button - styled based on variant prop for visual emphasis */}
-          {/* Confirm button - styled based on variant prop for visual emphasis */}
           <button 
             className={`confirm-dialog-btn confirm-dialog-btn-confirm confirm-dialog-btn-${variant}`}
             onClick={onConfirm}
