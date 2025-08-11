@@ -15,21 +15,19 @@
 
 import React, { useState, useEffect } from 'react';
 import { ConversationSummary, FullConversation } from '../types';
-import { chatAPI } from '../api';
+import { api } from '../api';
 import ConfirmDialog from './ConfirmDialog';
 
 /**
  * Props interface for AllConversations component
  * 
  * @interface AllConversationsProps
- * @property {string} userId - The unique identifier for the current user
  * @property {function} onSelectConversation - Callback function when a conversation is selected
  * @property {function} [onDeleteConversation] - Optional callback when a conversation is deleted
  * @property {number} [currentConversationId] - ID of the currently active conversation for highlighting
  * @property {number} [refreshTrigger] - Trigger value to force refresh when new conversation is created
  */
 interface AllConversationsProps {
-  userId: string;
   onSelectConversation: (conversation: FullConversation) => void;
   onDeleteConversation?: (conversationId: number) => void;
   currentConversationId?: number;
@@ -41,9 +39,9 @@ interface AllConversationsProps {
  * 
  * Manages the display and interaction of all user conversations in a sidebar format.
  * Implements auto-refresh functionality and handles conversation lifecycle operations.
+ * Uses authentication to fetch conversations for the current user.
  */
 const AllConversations: React.FC<AllConversationsProps> = ({
-  userId,
   onSelectConversation,
   onDeleteConversation,
   currentConversationId,
@@ -61,12 +59,12 @@ const AllConversations: React.FC<AllConversationsProps> = ({
   const [conversationToDelete, setConversationToDelete] = useState<number | null>(null);
 
   /**
-   * Effect: Load conversations when component mounts or userId changes
+   * Effect: Load conversations when component mounts
    * This ensures that conversations are loaded immediately when the component is rendered
    */
   useEffect(() => {
     loadConversations();
-  }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /**
    * Effect: Refresh conversations when refreshTrigger changes
@@ -89,7 +87,7 @@ const AllConversations: React.FC<AllConversationsProps> = ({
     }, 30000); // 30 seconds
 
     return () => clearInterval(interval);
-  }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /**
    * Loads conversations from the API
@@ -106,7 +104,7 @@ const AllConversations: React.FC<AllConversationsProps> = ({
     setError(null);
     
     try {
-      const conversationList = await chatAPI.getUserConversations(userId);
+      const conversationList = await api.getUserConversations();
       setConversations(conversationList);
     } catch (error) {
       console.error('Error loading conversations:', error);
@@ -131,7 +129,7 @@ const AllConversations: React.FC<AllConversationsProps> = ({
    */
   const handleConversationClick = async (conversationId: number) => {
     try {
-      const fullConversation = await chatAPI.getFullConversation(conversationId);
+      const fullConversation = await api.getFullConversation(conversationId);
       onSelectConversation(fullConversation);
     } catch (error) {
       console.error('Error loading conversation:', error);
@@ -160,7 +158,7 @@ const AllConversations: React.FC<AllConversationsProps> = ({
     if (conversationToDelete === null) return;
 
     try {
-      await chatAPI.deleteConversation(conversationToDelete);
+      await api.deleteConversation(conversationToDelete);
       
       // Update local state to remove the deleted conversation
       setConversations(prev => 
