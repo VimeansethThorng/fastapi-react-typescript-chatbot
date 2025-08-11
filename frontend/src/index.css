@@ -120,8 +120,8 @@ body {
  * - Internal scroll handling
  */
 .conversations-sidebar {
-  width: 350px;                           /* Fixed sidebar width */
-  min-width: 300px;                       /* Minimum width for responsiveness */
+  min-width: 250px;                       /* Minimum width for responsiveness */
+  max-width: 600px;                       /* Maximum width to prevent taking too much space */
   
   /* Gradient background for visual depth */
   background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
@@ -131,6 +131,58 @@ body {
   flex-direction: column;                 /* Stack header and content vertically */
   overflow: hidden;                       /* Prevent sidebar overflow */
   height: 100vh;
+  flex-shrink: 0;                         /* Prevent shrinking */
+  transition: width 0.1s ease-out;       /* Smooth width transitions */
+}
+
+/**
+ * Resize Handle - Draggable area between sidebar and main content
+ * 
+ * Allows users to resize the sidebar by dragging
+ */
+.resize-handle {
+  width: 4px;                             /* Thin handle width */
+  background: #e2e8f0;                   /* Subtle visible background */
+  cursor: col-resize;                     /* Resize cursor */
+  position: relative;                     /* For pseudo-element positioning */
+  flex-shrink: 0;                         /* Don't shrink */
+  z-index: 10;                           /* Above other content */
+  transition: background-color 0.2s ease; /* Smooth color transition */
+  outline: none;                          /* Remove default focus outline */
+}
+
+.resize-handle:hover {
+  background: #cbd5e1;                   /* Darker on hover */
+}
+
+.resize-handle:active {
+  background: #6366f1;                   /* Active color when dragging */
+}
+
+.resize-handle:focus {
+  background: #6366f1;                   /* Focus color */
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3); /* Focus ring */
+}
+
+/* Add a visual indicator with better contrast */
+.resize-handle::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 40px;
+  background: #94a3b8;
+  transform: translate(-50%, -50%);
+  border-radius: 1px;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.resize-handle:hover::before,
+.resize-handle:focus::before {
+  opacity: 1;
+  background: #6366f1;
 }
 
 /**
@@ -1180,6 +1232,16 @@ body {
 @media (max-width: 768px) {
   .App {
     padding: 10px;
+  }
+  
+  .resize-handle {
+    display: none;                        /* Hide resize handle on mobile */
+  }
+  
+  .conversations-sidebar {
+    width: 280px !important;              /* Fixed width on mobile */
+    min-width: 280px;
+    max-width: 280px;
   }
   
   .chat-container {
