@@ -28,26 +28,127 @@
 
 import { ChatRequest, ChatResponse, Message, ConversationSummary, FullConversation } from './types';
 
+// Authentication types
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  created_at: string;
+}
+
+interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+interface RegisterRequest {
+  username: string;
+  email: string;
+  password: string;
+}
+
+interface LoginResponse {
+  access_token: string;
+  token_type: string;
+  user: User;
+}
+
 const API_BASE_URL = 'http://localhost:8000'; // backend
 
-export const chatAPI = {
+/**
+ * Gets the authorization headers with JWT token
+ * 
+ * @returns Object containing authorization headers if token exists
+ */
+const getAuthHeaders = (): Record<string, string> => {
+  const token = localStorage.getItem('authToken');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+};
+
+export const api = {
+  // Authentication endpoints
+  
+  /**
+   * Registers a new user account
+   * 
+   * @param userData - User registration data
+   * @returns Promise resolving to User object
+   */
+  async register(userData: RegisterRequest): Promise<User> {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Registration failed');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Logs in a user and returns authentication token
+   * 
+   * @param credentials - User login credentials
+   * @returns Promise resolving to login response with token and user data
+   */
+  async login(credentials: LoginRequest): Promise<LoginResponse> {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Login failed');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Gets current user information from JWT token
+   * 
+   * @returns Promise resolving to current user data
+   */
+  async getCurrentUser(): Promise<User> {
+    const response = await fetch(`${API_BASE_URL}/auth/me`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to get user info');
+    }
+
+    return response.json();
+  },
+
+  // Chat endpoints (updated to use authentication)
   /**
    * Sends a chat message to the backend API and returns the response.
    *
    * @param request - The chat request payload containing the message and any additional metadata required by the backend.
    * @returns A promise that resolves to a {@link ChatResponse} object containing the response from the backend.
    * @throws {Error} Throws an error if the network request fails or the response status is not OK.
-   *
-   * @remarks
-   * This method sends a POST request to the `/chat` endpoint of the API, serializing the request object as JSON.
-   * It expects the backend to return a JSON response conforming to the {@link ChatResponse} type.
-   * Ensure that the {@link API_BASE_URL} is correctly configured and accessible from the frontend environment.
    */
   async sendMessage(request: ChatRequest): Promise<ChatResponse> {
     const response = await fetch(`${API_BASE_URL}/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...getAuthHeaders(),
       },
       body: JSON.stringify(request),
     });
@@ -101,8 +202,19 @@ export const chatAPI = {
     return response.json();
   },
 
-  async getUserConversations(userId: string): Promise<ConversationSummary[]> {
-    const response = await fetch(`${API_BASE_URL}/conversations/user/${userId}`);
+  /**
+   * Gets all conversations for the authenticated user
+   * 
+   * @returns Promise resolving to array of conversation summaries
+   */
+  async getUserConversations(): Promise<ConversationSummary[]> {
+    const response = await fetch(`${API_BASE_URL}/conversations`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+      },
+    });
     
     if (!response.ok) {
       throw new Error('Failed to fetch user conversations');
@@ -112,14 +224,19 @@ export const chatAPI = {
   },
 
   /**
-   * Retrieves the full conversation details for a given conversation ID.
-   *
-   * @param conversationId - The unique identifier of the conversation to fetch.
-   * @returns A promise that resolves to a {@link FullConversation} object containing the complete conversation data.
-   * @throws {Error} If the request fails or the response is not OK.
+   * Gets full conversation details including all messages
+   * 
+   * @param conversationId - ID of the conversation to fetch
+   * @returns Promise resolving to full conversation data
    */
   async getFullConversation(conversationId: number): Promise<FullConversation> {
-    const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/full`);
+    const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/full`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+      },
+    });
     
     if (!response.ok) {
       throw new Error('Failed to fetch full conversation');
@@ -129,19 +246,23 @@ export const chatAPI = {
   },
 
   /**
+   * Retrieves the full conversation details for a given conversation ID.
+   *
+   * @param conversationId - The unique identifier of the conversation to fetch.
+  /**
    * Deletes a conversation and all its messages by conversation ID.
    *
    * @param conversationId - The unique identifier of the conversation to delete.
    * @returns A promise that resolves to an object containing a confirmation message and the deleted conversation's ID.
    * @throws {Error} If the network request fails or the response is not OK.
-   *
-   * @remarks
-   * This method sends a DELETE request to the `/conversations/{conversationId}` endpoint.
-   * The backend is expected to return a JSON object with a message and the conversation ID.
    */
   async deleteConversation(conversationId: number): Promise<{ message: string; conversation_id: number }> {
     const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}`, {
       method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+      },
     });
     
     if (!response.ok) {

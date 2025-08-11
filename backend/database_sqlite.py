@@ -23,12 +23,24 @@ class DatabaseManager:
         try:
             cursor = self.connection.cursor()
             
+            # Create users table
+            create_users_table = """
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+            
             # Create conversations table
             create_conversations_table = """
             CREATE TABLE IF NOT EXISTS conversations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                user_id INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
             )
             """
             
@@ -44,6 +56,7 @@ class DatabaseManager:
             )
             """
             
+            cursor.execute(create_users_table)
             cursor.execute(create_conversations_table)
             cursor.execute(create_messages_table)
             self.connection.commit()    # commits the current transaction to the database
@@ -63,7 +76,7 @@ class DatabaseManager:
             logger.error(f"Error saving message: {e}")
             return None
             
-    def create_conversation(self, user_id: str):
+    def create_conversation(self, user_id: int):
         try:
             cursor = self.connection.cursor()
             query = "INSERT INTO conversations (user_id) VALUES (?)"
@@ -88,7 +101,7 @@ class DatabaseManager:
             logger.error(f"Error fetching conversation history: {e}")
             return []
     
-    def get_all_conversations(self, user_id: str):
+    def get_all_conversations(self, user_id: int):
         try:
             cursor = self.connection.cursor()
             query = """
@@ -158,6 +171,89 @@ class DatabaseManager:
         except Exception as e:
             logger.error(f"Error deleting conversation: {e}")
             return False
+    
+    # User authentication methods
+    def create_user(self, username: str, email: str, password_hash: str):
+        """
+        Create a new user in the database
+        
+        Args:
+            username: Unique username for the user
+            email: Unique email address for the user
+            password_hash: Hashed password for security
+            
+        Returns:
+            int: User ID if successful, None if failed
+        """
+        try:
+            cursor = self.connection.cursor()
+            query = "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)"
+            cursor.execute(query, (username, email, password_hash))
+            self.connection.commit()
+            return cursor.lastrowid
+        except Exception as e:
+            logger.error(f"Error creating user: {e}")
+            return None
+    
+    def get_user_by_username(self, username: str):
+        """
+        Retrieve user by username
+        
+        Args:
+            username: Username to search for
+            
+        Returns:
+            dict: User data if found, None if not found
+        """
+        try:
+            cursor = self.connection.cursor()
+            query = "SELECT id, username, email, password_hash, created_at FROM users WHERE username = ?"
+            cursor.execute(query, (username,))
+            result = cursor.fetchone()
+            return dict(result) if result else None
+        except Exception as e:
+            logger.error(f"Error fetching user by username: {e}")
+            return None
+    
+    def get_user_by_email(self, email: str):
+        """
+        Retrieve user by email
+        
+        Args:
+            email: Email to search for
+            
+        Returns:
+            dict: User data if found, None if not found
+        """
+        try:
+            cursor = self.connection.cursor()
+            query = "SELECT id, username, email, password_hash, created_at FROM users WHERE email = ?"
+            cursor.execute(query, (email,))
+            result = cursor.fetchone()
+            return dict(result) if result else None
+        except Exception as e:
+            logger.error(f"Error fetching user by email: {e}")
+            return None
+    
+    def get_user_by_id(self, user_id: int):
+        """
+        Retrieve user by ID
+        
+        Args:
+            user_id: User ID to search for
+            
+        Returns:
+            dict: User data if found, None if not found
+        """
+        try:
+            cursor = self.connection.cursor()
+            query = "SELECT id, username, email, created_at FROM users WHERE id = ?"
+            cursor.execute(query, (user_id,))
+            result = cursor.fetchone()
+            return dict(result) if result else None
+        except Exception as e:
+            logger.error(f"Error fetching user by ID: {e}")
+            return None
             
     def close(self):
         if self.connection:
