@@ -21,12 +21,10 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-# Check if Poetry is installed
-if ! command_exists poetry; then
-    echo -e "${RED}❌ Poetry is not installed. Installing Poetry...${NC}"
-    curl -sSL https://install.python-poetry.org | python3 -
-    export PATH="$HOME/.local/bin:$PATH"
-    echo -e "${GREEN}✅ Poetry installed successfully${NC}"
+# Check if Python is installed
+if ! command_exists python3; then
+    echo -e "${RED}❌ Python 3 is not installed. Please install Python 3 first.${NC}"
+    exit 1
 fi
 
 # Check if Node.js/npm is installed
@@ -39,14 +37,26 @@ fi
 echo -e "\n${YELLOW}📦 Setting up backend dependencies...${NC}"
 cd "$BACKEND_DIR"
 
-# Install dependencies with Poetry
-poetry install
+# Create virtual environment if it doesn't exist
+if [ ! -d ".venv" ]; then
+    echo -e "${YELLOW}🔧 Creating Python virtual environment...${NC}"
+    python3 -m venv .venv
+    echo -e "${GREEN}✅ Virtual environment created${NC}"
+fi
+
+# Activate virtual environment
+echo -e "${YELLOW}🔧 Activating virtual environment...${NC}"
+source .venv/bin/activate
+
+# Install dependencies with pip
+echo -e "${YELLOW}📦 Installing Python dependencies...${NC}"
+pip install -r requirements_sqlite.txt
 
 echo -e "${GREEN}✅ Backend dependencies installed${NC}"
 echo -e "${YELLOW}🔥 Starting FastAPI backend server...${NC}"
 
-# Start backend with Poetry
-poetry run uvicorn main_sqlite:app --reload --host 0.0.0.0 --port 8000 &
+# Start backend with Python
+python main_sqlite.py &
 BACKEND_PID=$!
 
 # Give backend time to start

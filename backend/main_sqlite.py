@@ -20,6 +20,8 @@ Key Features:
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 # Import Pydantic models for request/response validation
 from models import ChatRequest, ChatResponse, ConversationCreate, ConversationResponse, UserCreate, UserLogin, LoginResponse, UserResponse
@@ -79,11 +81,20 @@ app = FastAPI(
 # This is essential for web browsers to allow requests from React frontend to FastAPI backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React frontend URL - restrict in production
+    allow_origins=["http://localhost:3000", "http://localhost:8000"],  # React frontend URLs
     allow_credentials=True,                   # Allow cookies and authentication headers
     allow_methods=["*"],                      # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
     allow_headers=["*"],                      # Allow all headers
 )
+
+# STATIC FILES CONFIGURATION
+# Serve React build files
+import os
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+# Mount the nested static directory for CSS, JS, and media files
+nested_static_dir = os.path.join(static_dir, "static")
+if os.path.exists(nested_static_dir):
+    app.mount("/static", StaticFiles(directory=nested_static_dir), name="static")
 
 # APPLICATION LIFECYCLE EVENTS
 # These events run when the FastAPI application starts and stops
@@ -113,15 +124,68 @@ async def shutdown_event():
 # API ENDPOINTS
 
 @app.get("/")
-async def root():
+async def serve_react_root():
     """
-    Health check endpoint
+    Serve React app from root path
+    """
+    static_dir = os.path.join(os.path.dirname(__file__), "static")
+    index_file = os.path.join(static_dir, "index.html")
+    
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
+    else:
+        return {
+            "message": "Chatbot API is running with SQLite",
+            "version": "1.0.0",
+            "status": "healthy"
+        }
+
+@app.get("/favicon.ico")
+async def serve_favicon():
+    """
+    Serve favicon.ico from static directory
+    """
+    static_dir = os.path.join(os.path.dirname(__file__), "static")
+    favicon_file = os.path.join(static_dir, "favicon.ico")
+    
+    if os.path.exists(favicon_file):
+        return FileResponse(favicon_file)
+    else:
+        raise HTTPException(status_code=404, detail="Favicon not found")
+
+@app.get("/manifest.json")
+async def serve_manifest():
+    """
+    Serve manifest.json from static directory
+    """
+    static_dir = os.path.join(os.path.dirname(__file__), "static")
+    manifest_file = os.path.join(static_dir, "manifest.json")
+    
+    if os.path.exists(manifest_file):
+        return FileResponse(manifest_file)
+    else:
+        raise HTTPException(status_code=404, detail="Manifest not found")
+
+@app.get("/logo192.png")
+async def serve_logo192():
+    """
+    Serve logo192.png from static directory
+    """
+    static_dir = os.path.join(os.path.dirname(__file__), "static")
+    logo_file = os.path.join(static_dir, "logo192.png")
+    
+    if os.path.exists(logo_file):
+        return FileResponse(logo_file)
+    else:
+        raise HTTPException(status_code=404, detail="Logo not found")
+
+# API status endpoint moved to /api
+@app.get("/api")
+async def api_status():
+    """
+    API status endpoint
     
     Returns basic API information and status
-    Useful for monitoring and confirming the API is running
-    
-    Returns:
-        dict: API status message and version information
     """
     return {
         "message": "Chatbot API is running with SQLite",
@@ -381,6 +445,17 @@ async def delete_conversation(conversation_id: int):
     except Exception as e:
         logger.error(f"Error deleting conversation: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+# Health check endpoint for Docker
+@app.get("/health")
+async def health_check():
+    """
+    Health check endpoint for Docker monitoring
+    
+    Returns:
+        dict: Simple health status
+    """
+    return {"status": "healthy"}
 
 if __name__ == "__main__":
     import uvicorn

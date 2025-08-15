@@ -2,7 +2,7 @@
 
 ## 🌟 Application Overview
 
-This is a modern full-stack AI chatbot application built with FastAPI (backend) and React TypeScript (frontend). The application supports real-time chat, conversation management, and user authentication using SQLite for data persistence and Poetry for dependency management.
+This is a modern full-stack AI chatbot application built with FastAPI (backend) and React TypeScript (frontend). The application supports real-time chat, conversation management, and user authentication using SQLite for data persistence and pip for dependency management.
 
 ## ✨ Key Features
 
@@ -14,9 +14,12 @@ This is a modern full-stack AI chatbot application built with FastAPI (backend) 
 
 ### Technical Features
 - 🏗️ **Modern Architecture** - FastAPI + React + TypeScript
-- 📦 **Poetry** - Modern Python dependency management  
+- � **Virtual Environment** - Clean Python dependency management with pip  
 - 🚀 **One-command Setup** - Simple deployment
 - 📊 **Rich Content** - Tables, code blocks, math equations
+- 🐳 **Docker Support** - Full containerization with Docker Compose
+- 🔧 **Health Monitoring** - Built-in health checks and status endpoints
+- 📊 **Static File Integration** - Seamless frontend-backend integration
 
 ## 🏗️ Application Flow Diagram
 
@@ -44,13 +47,13 @@ graph TB
     HTTP[HTTP/HTTPS Requests<br/>localhost:3000 → localhost:8000<br/>CORS Enabled]
     
     %% Backend Layer
-    subgraph "Backend (FastAPI + Poetry)"
+    subgraph "Backend (FastAPI + pip)"
         MAIN[main_sqlite.py<br/>FastAPI App + CORS]
         MODELS[models.py<br/>Pydantic Models]
         CHAT_SERVICE[chat_service_sqlite.py<br/>OpenAI Integration]
         DB_MANAGER[database_sqlite.py<br/>SQLite Manager]
         CONFIG[config_sqlite.py<br/>Environment Config]
-        POETRY[pyproject.toml<br/>Poetry Dependencies]
+        REQUIREMENTS[requirements_sqlite.txt<br/>Python Dependencies]
     end
     
     %% Database Layer
@@ -244,6 +247,86 @@ FastAPI-React/
 - `POST /conversations`: Create new conversation
 - `GET /conversations/{conversation_id}/messages`: Get conversation messages
 
+## 🐳 Docker Deployment Architecture
+
+### Deployment Modes
+
+#### Production Mode
+```mermaid
+graph TB
+    subgraph "Docker Container (Port 8000)"
+        FASTAPI[FastAPI Server]
+        STATIC[Static Files<br/>React Build]
+        API[API Endpoints]
+        DB[(SQLite Database)]
+        
+        FASTAPI --> STATIC
+        FASTAPI --> API
+        FASTAPI --> DB
+    end
+    
+    CLIENT[Web Browser] --> FASTAPI
+```
+
+#### Development Mode
+```mermaid
+graph TB
+    subgraph "Frontend Container (Port 3000)"
+        REACT_DEV[React Dev Server<br/>Hot Reload]
+        FRONTEND_SRC[Source Code<br/>Volume Mount]
+        REACT_DEV --> FRONTEND_SRC
+    end
+    
+    subgraph "Backend Container (Port 8000)"
+        FASTAPI_DEV[FastAPI Server]
+        API_ENDPOINTS[API Endpoints]
+        HEALTH[Health Check]
+        DB_DEV[(SQLite Database)]
+        
+        FASTAPI_DEV --> API_ENDPOINTS
+        FASTAPI_DEV --> HEALTH
+        FASTAPI_DEV --> DB_DEV
+    end
+    
+    CLIENT[Web Browser] --> REACT_DEV
+    REACT_DEV --> FASTAPI_DEV
+```
+
+### Docker Services Configuration
+
+```yaml
+# compose.yml
+services:
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend-dev:
+    build:
+      context: .
+      target: frontend-dev
+    ports:
+      - "3000:3000"
+    profiles:
+      - dev
+    volumes:
+      - "./frontend/src:/app/src"
+```
+
+### Container Health Monitoring
+
+- **Backend Health**: `/health` endpoint with database connectivity check
+- **Frontend Health**: Development server status and compilation success
+- **Docker Health Checks**: Built-in container monitoring with automatic restarts
+
 ## Technology Stack
 
 - **Frontend**: React, TypeScript, CSS
@@ -251,3 +334,37 @@ FastAPI-React/
 - **Database**: SQLite
 - **Communication**: HTTP/REST API with JSON
 - **Development**: Node.js (frontend), Python (backend)
+- **Containerization**: Docker, Docker Compose
+- **Health Monitoring**: Built-in health checks and status endpoints
+- **Deployment**: Multi-stage builds with development and production profiles
+
+## Quick Start
+
+### Docker Deployment (Recommended)
+```bash
+# Production mode
+git checkout docker
+docker-compose up -d
+
+# Development mode  
+docker-compose --profile dev up -d
+
+# Access application
+open http://localhost:8000  # Production
+open http://localhost:3000  # Development
+```
+
+### Local Development
+```bash
+# Backend
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements_sqlite.txt
+uvicorn main_sqlite:app --reload
+
+# Frontend  
+cd frontend
+npm install
+npm start
+```

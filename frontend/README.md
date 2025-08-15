@@ -18,20 +18,45 @@ This is the frontend application for the FastAPI-React TypeScript Chatbot. Built
 
 ## 🚀 Quick Start
 
-### Using the Root Script (Recommended)
+### 🐳 Docker Development (Recommended)
 ```bash
-# From the project root
+# From the project root, start development mode
+git checkout docker
+docker-compose --profile dev up -d frontend-dev
+
+# Access the application
+open http://localhost:3000
+```
+
+### Using the Root Script
+```bash
+# From the project root (local development)
 ./start.sh
 ```
 
-### Manual Setup
+### Manual Local Setup
 ```bash
 # Install dependencies
 npm install
 
 # Start development server
 npm start
+
+# Build for production
+npm run build
 ```
+
+## 🐳 Docker Configuration
+
+### Development Mode
+- **Hot Reload**: Live code updates without rebuilding
+- **Port 3000**: Dedicated development server
+- **Volume Mounting**: Source code changes reflected instantly
+
+### Production Mode
+- **Static Build**: Optimized React build served via FastAPI
+- **Port 8000**: Integrated with backend
+- **Single Container**: Streamlined deployment
 
 ## 📦 Dependencies
 
