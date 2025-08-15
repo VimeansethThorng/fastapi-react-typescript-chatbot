@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a FastAPI-based backend for an AI chatbot application that uses SQLite for data persistence and OpenAI's GPT API for chat responses. The backend provides a comprehensive RESTful API for managing conversations and processing chat messages with modern Python dependency management using Poetry.
+This is a FastAPI-based backend for an AI chatbot application that uses SQLite for data persistence and OpenAI's GPT API for chat responses. The backend provides a comprehensive RESTful API for managing conversations and processing chat messages with clean Python dependency management using pip and virtual environments.
 
 ## ✨ Key Features
 
@@ -10,7 +10,10 @@ This is a FastAPI-based backend for an AI chatbot application that uses SQLite f
 - 🔐 **User Authentication** - JWT-based secure authentication
 - 📚 **Conversation Management** - Persistent chat history
 - 🗄️ **SQLite Database** - Lightweight, file-based storage
-- 📦 **Poetry** - Modern Python dependency management
+- � **Virtual Environment** - Clean Python dependency management with pip
+- 🐳 **Docker Support** - Full containerization with health checks
+- 📊 **Static File Serving** - Integrated React app serving
+- 🏥 **Health Monitoring** - Built-in health check endpoints
 
 ## 🏗️ Architecture
 
@@ -37,22 +40,20 @@ graph TB
 
 ## 📦 Dependencies & Setup
 
-### Poetry Configuration
-The backend uses Poetry for modern Python dependency management:
+### Python Requirements (requirements_sqlite.txt)
+The backend uses a virtual environment with pip for dependency management:
 
-```toml
-[tool.poetry.dependencies]
-python = ">=3.9,<4.0"
-fastapi = "^0.104.1"
-uvicorn = "^0.24.0"
-openai = "^1.3.7"
-python-dotenv = "^1.0.0"
-pydantic = "^2.9.2"
-python-multipart = "^0.0.6"
-passlib = "^1.7.4"
-python-jose = "^3.3.0"
-bcrypt = "^4.0.1"
-requests = "^2.32.4"
+```txt
+fastapi==0.104.1
+uvicorn==0.24.0
+openai==1.3.7
+python-dotenv==1.0.0
+pydantic==2.9.2
+python-multipart==0.0.6
+passlib==1.7.4
+python-jose==3.3.0
+bcrypt==4.0.1
+requests==2.32.4
 ```
 
 ### Environment Variables
@@ -76,15 +77,21 @@ The main application entry point that defines all API endpoints and handles HTTP
 
 #### Key Features:
 - **CORS Middleware**: Allows requests from React frontend (localhost:3000)
+- **Static File Serving**: Serves React production build from `/static` and root `/`
+- **Health Endpoints**: `/health` and `/api` for monitoring
 - **Error Handling**: Comprehensive exception handling with proper HTTP status codes
 - **Logging**: Structured logging for debugging and monitoring
 - **Lifecycle Events**: Database connection management on startup/shutdown
+- **Docker Support**: Containerized deployment with health checks
 
 #### API Endpoints:
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/` | Health check endpoint |
+| `GET` | `/` | Serves React app (index.html) |
+| `GET` | `/health` | Health check endpoint |
+| `GET` | `/api` | API status endpoint |
+| `GET` | `/static/{path}` | Serves static files (CSS, JS, images) |
 | `POST` | `/chat` | Send message and get AI response |
 | `POST` | `/conversations` | Create new conversation |
 | `GET` | `/conversations/{id}/messages` | Get conversation messages |
@@ -286,6 +293,37 @@ allow_headers=["*"]
 - **Response Models**: Efficient JSON serialization
 - **Error Caching**: Graceful degradation
 
+## 🐳 Docker Deployment
+
+### Container Configuration
+```dockerfile
+FROM python:3.12-slim
+WORKDIR /app
+COPY backend/ .
+RUN pip install -r requirements_sqlite.txt
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8000/health || exit 1
+EXPOSE 8000
+CMD ["python", "main_sqlite.py"]
+```
+
+### Health Check Implementation
+```python
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "database": "connected"
+    }
+```
+
+### Docker Compose Integration
+- **Production Mode**: Serves React build files via FastAPI
+- **Development Mode**: Separate backend container for API only
+- **Persistent Volume**: SQLite database mounted for data persistence
+- **Health Monitoring**: Built-in health checks for container orchestration
+
 ## Development Setup
 
 ### 1. Environment Variables (`.env`):
@@ -301,15 +339,40 @@ uvicorn
 openai
 python-dotenv
 pydantic
+python-multipart
+passlib
+python-jose
+bcrypt
+requests
 ```
 
 ### 3. Running the Server:
+
+#### Local Development:
 ```bash
-# Development
+# Create and activate virtual environment
+cd backend
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements_sqlite.txt
+
+# Run development server
 uvicorn main_sqlite:app --reload --port 8000
 
-# Production
+# Or direct execution
 python main_sqlite.py
+```
+
+#### Docker Development:
+```bash
+# Build and run container
+docker build -t chatbot-backend .
+docker run -p 8000:8000 -e OPENAI_API_KEY=your_key chatbot-backend
+
+# Using Docker Compose
+docker-compose up backend
 ```
 
 ## API Documentation
@@ -342,8 +405,22 @@ logger = logging.getLogger(__name__)
 
 ### Health Check:
 ```bash
-curl http://localhost:8000/
-# Response: {"message": "Chatbot API is running with SQLite"}
+# Local development
+curl http://localhost:8000/health
+
+# Docker container
+curl http://localhost:8000/health
+
+# Expected response:
+{
+  "status": "healthy",
+  "timestamp": "2025-08-15T10:30:00",
+  "database": "connected"
+}
+
+# API status
+curl http://localhost:8000/api
+# Response: {"message": "API is running", "version": "1.0.0"}
 ```
 
 ## Scalability Considerations

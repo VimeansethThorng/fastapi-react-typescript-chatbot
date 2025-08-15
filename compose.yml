@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # Backend service (FastAPI)
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./data/chatbot.db
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"] 
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Development frontend service (for development only)
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    profiles:
+      - dev
+
+volumes:
+  data:

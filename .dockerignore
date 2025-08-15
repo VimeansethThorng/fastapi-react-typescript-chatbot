@@ -1,0 +1,50 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+README.md
+
+# Node modules
+node_modules
+npm-debug.log*
+
+# Frontend build (will be built in Docker)
+frontend/build
+frontend/dist
+
+# Python cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Virtual environments
+venv
+env
+.venv
+.env
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database (will be volume mounted)
+*.db
+*.sqlite
+
+# Temporary files
+*.tmp
+*.temp

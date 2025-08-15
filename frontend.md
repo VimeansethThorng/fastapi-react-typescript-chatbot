@@ -7,11 +7,14 @@ This is a modern React frontend built with TypeScript for an AI chatbot applicat
 ## ✨ Key Features
 
 - 🎨 **Modern Chat UI** - Clean, responsive chat interface
--  **Real-time Messaging** - Instant chat with typing indicators
+- ⚡ **Real-time Messaging** - Instant chat with typing indicators
 - 📚 **Conversation Management** - Create, view, and delete conversations
 - 📊 **Rich Content Rendering** - Tables, code blocks, mathematical equations
 - 🔐 **User Authentication** - Login/register with JWT tokens
 - 📱 **Responsive Design** - Works seamlessly on all devices
+- 🐳 **Docker Support** - Containerized development and production builds
+- 🔥 **Hot Reload** - Development server with live code updates
+- 🎯 **TypeScript** - Full type safety and IntelliSense support
 
 ## 🏗️ Architecture
 
@@ -388,6 +391,42 @@ useEffect(() => {
 
 ## Development Setup
 
+### 🐳 Docker Development
+
+#### Development Mode (Recommended)
+```bash
+# Start development container with hot reload
+docker-compose --profile dev up -d frontend-dev
+
+# View logs
+docker-compose logs -f frontend-dev
+
+# Stop development container
+docker-compose --profile dev down
+```
+
+**Features:**
+- **Hot Reload**: Live code updates without rebuilding
+- **Port 3000**: Separate development server
+- **Volume Mounting**: Source code changes reflected instantly
+- **Development Dependencies**: Full dev toolchain available
+
+#### Production Mode
+```bash
+# Build production container
+docker-compose up -d
+
+# Frontend served via FastAPI on port 8000
+curl http://localhost:8000
+```
+
+**Features:**
+- **Optimized Build**: Minified and compressed assets
+- **Static File Serving**: Served via FastAPI backend
+- **Single Port**: Integrated with backend on port 8000
+
+### 📦 Local Development
+
 ### 1. Dependencies (`package.json`)
 ```json
 {
@@ -421,6 +460,8 @@ src/
 ```
 
 ### 3. Running the Application
+
+#### Local Development:
 ```bash
 # Install dependencies
 npm install
@@ -430,6 +471,40 @@ npm start
 
 # Build for production
 npm run build
+
+# Serve production build locally
+npx serve -s build
+```
+
+#### Docker Development:
+```bash
+# Development mode (hot reload)
+docker-compose --profile dev up -d frontend-dev
+
+# Production mode (static files)
+docker-compose up -d
+
+# Build custom image
+docker build -t chatbot-frontend .
+```
+
+### 4. Environment Configuration
+
+#### Development (.env.local):
+```bash
+# API endpoint (optional, defaults to localhost:8000)
+REACT_APP_API_URL=http://localhost:8000
+
+# Enable development features
+REACT_APP_DEBUG=true
+```
+
+#### Docker Environment:
+```yaml
+# In docker-compose.yml
+environment:
+  - NODE_ENV=development
+  - REACT_APP_API_URL=http://backend:8000
 ```
 
 ## Styling and CSS
