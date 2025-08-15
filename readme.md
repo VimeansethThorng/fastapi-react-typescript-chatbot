@@ -24,14 +24,6 @@ A modern, full-stack AI chatbot application built with React (TypeScript) fronte
 - 🎨 **Modern UI** - Clean, professional interface with custom CSS styling
 - 📊 **Rich Content Support** - Tables, code blocks, and mathematical equations
 
-### RAG & File Features
-- 📄 **Document Upload** - Support for PDF, Word documents, and text files
-- 🧠 **RAG System** - Retrieval-Augmented Generation for document-based Q&A
-- � **Semantic Search** - ChromaDB vector database for intelligent document search
-- 📝 **Document Processing** - Automatic text extraction and chunking
-- 💡 **Context-Aware Responses** - AI answers questions based on uploaded documents
-- 🔗 **File Integration** - Link documents to conversations and messages
-
 ### Technical Features
 - �🚀 **One-command Setup** - Start entire stack with a single script
 - 📦 **Poetry Integration** - Modern Python dependency management
