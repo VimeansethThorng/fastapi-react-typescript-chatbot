@@ -53,7 +53,7 @@ interface LoginResponse {
   user: User;
 }
 
-const API_BASE_URL = 'http://localhost:8000'; // backend
+const API_BASE_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:8000';
 
 /**
  * Gets the authorization headers with JWT token
