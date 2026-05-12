@@ -56,11 +56,26 @@ class DatabaseManager:
             )
             """
             
+            # Create documents table for RAG
+            create_documents_table = """
+            CREATE TABLE IF NOT EXISTS documents (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                filename TEXT NOT NULL,
+                file_type TEXT NOT NULL,
+                chunk_count INTEGER DEFAULT 0,
+                is_global INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+            """
+
             cursor.execute(create_users_table)
             cursor.execute(create_conversations_table)
             cursor.execute(create_messages_table)
-            self.connection.commit()    # commits the current transaction to the database
-            logger.info("SQLite tables created successfully")   # write log to the Terminal
+            cursor.execute(create_documents_table)
+            self.connection.commit()
+            logger.info("SQLite tables created successfully")
             
         except Exception as e:
             logger.error(f"Error creating tables: {e}")
@@ -255,6 +270,59 @@ class DatabaseManager:
             logger.error(f"Error fetching user by ID: {e}")
             return None
             
+    # Document methods for RAG
+
+    def create_document(self, user_id: int, filename: str, file_type: str, chunk_count: int, is_global: bool):
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(
+                "INSERT INTO documents (user_id, filename, file_type, chunk_count, is_global) VALUES (?, ?, ?, ?, ?)",
+                (user_id, filename, file_type, chunk_count, 1 if is_global else 0),
+            )
+            self.connection.commit()
+            return cursor.lastrowid
+        except Exception as e:
+            logger.error(f"Error creating document: {e}")
+            return None
+
+    def get_documents(self, user_id: int):
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(
+                """SELECT id, user_id, filename, file_type, chunk_count, is_global, created_at
+                   FROM documents
+                   WHERE user_id = ? OR is_global = 1
+                   ORDER BY created_at DESC""",
+                (user_id,),
+            )
+            return [dict(row) for row in cursor.fetchall()]
+        except Exception as e:
+            logger.error(f"Error fetching documents: {e}")
+            return []
+
+    def get_document_by_id(self, doc_id: int):
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(
+                "SELECT id, user_id, filename, file_type, chunk_count, is_global FROM documents WHERE id = ?",
+                (doc_id,),
+            )
+            row = cursor.fetchone()
+            return dict(row) if row else None
+        except Exception as e:
+            logger.error(f"Error fetching document {doc_id}: {e}")
+            return None
+
+    def delete_document(self, doc_id: int):
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute("DELETE FROM documents WHERE id = ?", (doc_id,))
+            self.connection.commit()
+            return cursor.rowcount > 0
+        except Exception as e:
+            logger.error(f"Error deleting document {doc_id}: {e}")
+            return False
+
     def close(self):
         if self.connection:
             self.connection.close()
