@@ -1,83 +1,23 @@
-# ⚛️ React TypeScript Frontend
+# Frontend
 
-This is the frontend application for the FastAPI-React TypeScript Chatbot. Built with React 18, TypeScript, and modern dependencies for rich content rendering and real-time chat functionality.
+React 18 + TypeScript frontend for the AI chatbot. See [frontend.md](../frontend.md) for full documentation.
 
-## ✨ Features
+## Quick Start
 
-### Core Chat Features
-- 🎨 **Modern UI**: Custom CSS with responsive design
-- 📝 **Rich Content**: Support for tables, code blocks, and math equations
-- ⚡ **Real-time Chat**: Seamless communication with FastAPI backend
-- 🔄 **Auto-refresh**: Conversation history updates automatically
-- 📱 **Responsive**: Works on desktop and mobile devices
-
-### Authentication Features
-- 🔐 **JWT Authentication**: Secure user login and registration
-- 👤 **User Management**: Personal conversation storage
-- 🔑 **Session Management**: Persistent login with token refresh
-
-## 🚀 Quick Start
-
-### Using the Root Script (Recommended)
 ```bash
-# From the project root
-./start.sh
-```
-
-### Manual Setup
-```bash
-# Install dependencies
 npm install
-
-# Start development server
-npm start
+npm start    # http://localhost:3000
 ```
 
-## 📦 Dependencies
+Connects to the FastAPI backend at `http://localhost:8000` by default.  
+Override with `REACT_APP_API_URL` environment variable.
 
-### Core Framework
-- **React 18** with TypeScript
-- **Create React App** for build tooling
+## Key Components
 
-### Rich Content Rendering
-- **react-markdown**: Markdown parsing and rendering
-- **react-syntax-highlighter**: Code syntax highlighting
-- **katex**: Mathematical equation rendering
-- **remark-gfm**: GitHub Flavored Markdown (tables)
-- **remark-math** & **rehype-katex**: Math equation support
-
-### Component Architecture
-```
-src/
-├── components/
-│   ├── ChatBot.tsx           # Main chat interface
-│   ├── MessageBubble.tsx     # Individual message display
-│   ├── MessageInput.tsx      # User input component
-│   ├── AllConversations.tsx  # Conversation history
-│   ├── TypingIndicator.tsx   # Loading animation
-│   ├── LoadingDots.tsx       # Loading dots
-│   └── ConfirmDialog.tsx     # Confirmation dialogs
-├── api.ts                    # API client functions
-├── types.ts                  # TypeScript type definitions
-└── App.tsx                   # Main application component
-```
-
-## 🛠️ Configuration
-
-The frontend is configured to connect to the FastAPI backend at `http://localhost:8000` with CORS enabled for development.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+| Component | Purpose |
+|-----------|---------|
+| `ChatBot.tsx` | Main chat interface |
+| `DocumentPanel.tsx` | RAG knowledge base (file + URL upload) |
+| `AllConversations.tsx` | Conversation history sidebar |
+| `Login.tsx` | Register / login forms |
+| `MessageBubble.tsx` | Markdown + code + math rendering |

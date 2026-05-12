@@ -1,253 +1,222 @@
-# 🚀 FastAPI-React TypeScript Chatbot - Full Stack Architecture
+# Full Stack Architecture
 
-## 🌟 Application Overview
+## Application Overview
 
-This is a modern full-stack AI chatbot application built with FastAPI (backend) and React TypeScript (frontend). The application supports real-time chat, conversation management, and user authentication using SQLite for data persistence and Poetry for dependency management.
+Full-stack AI chatbot with JWT authentication, persistent SQLite storage, and Retrieval-Augmented Generation (RAG). Users can chat with Claude AI and optionally upload documents (PDF, TXT) or paste website URLs to augment responses with private knowledge.
 
-## ✨ Key Features
-
-### Core Features
-- 💬 **Real-time Chat** - Instant messaging with AI assistant
-- 📚 **Conversation Management** - Persistent chat history
-- 🔐 **User Authentication** - Secure JWT-based login system
-- 📱 **Responsive Design** - Works on all devices
-
-### Technical Features
-- 🏗️ **Modern Architecture** - FastAPI + React + TypeScript
-- 📦 **Poetry** - Modern Python dependency management  
-- 🚀 **One-command Setup** - Simple deployment
-- 📊 **Rich Content** - Tables, code blocks, math equations
-
-## 🏗️ Application Flow Diagram
+## System Architecture
 
 ```mermaid
 graph TB
-    %% User Interface Layer
-    subgraph "Frontend (React + TypeScript)"
-        UI[User Interface<br/>Rich Content Rendering]
-        APP[App.tsx<br/>Main Application]
-        CHATBOT[ChatBot.tsx<br/>Chat Interface] 
-        COMPONENTS[Components<br/>MessageBubble, Input, etc.]
-        API_CLIENT[api.ts<br/>HTTP Client]
-        TYPES[types.ts<br/>TypeScript Definitions]
-        MARKDOWN[React Markdown<br/>Tables, Code, Math]
-        
-        UI --> APP
-        APP --> CHATBOT
-        CHATBOT --> COMPONENTS
-        CHATBOT --> API_CLIENT
-        CHATBOT --> MARKDOWN
-        API_CLIENT --> TYPES
+    subgraph "Browser (React + TypeScript)"
+        UI[ChatBot UI]
+        DOC[DocumentPanel]
+        AUTH_UI[Login/Register]
+        API_CLIENT[api.ts]
     end
-    
-    %% Network Layer
-    HTTP[HTTP/HTTPS Requests<br/>localhost:3000 → localhost:8000<br/>CORS Enabled]
-    
-    %% Backend Layer
-    subgraph "Backend (FastAPI + Poetry)"
-        MAIN[main_sqlite.py<br/>FastAPI App + CORS]
-        MODELS[models.py<br/>Pydantic Models]
-        CHAT_SERVICE[chat_service_sqlite.py<br/>OpenAI Integration]
-        DB_MANAGER[database_sqlite.py<br/>SQLite Manager]
-        CONFIG[config_sqlite.py<br/>Environment Config]
-        POETRY[pyproject.toml<br/>Poetry Dependencies]
+
+    subgraph "FastAPI Backend (Python 3.10)"
+        ENDPOINTS[REST Endpoints]
+        AUTH_SVC[auth_service.py]
+        CHAT_SVC[chat_service_sqlite.py]
+        RAG_SVC[rag_service.py]
+        DB_MGR[database_sqlite.py]
     end
-    
-    %% Database Layer
-    subgraph "Database (SQLite)"
-        SQLITE[(chatbot.db<br/>Local Storage)]
-        CONVERSATIONS[conversations table<br/>Chat Sessions]
-        MESSAGES[messages table<br/>User + AI Messages]
-        
-        SQLITE --> CONVERSATIONS
-        SQLITE --> MESSAGES
+
+    subgraph "Storage"
+        SQLITE[(SQLite\nchatbot.db)]
+        CHROMA[(ChromaDB\nchroma_db/)]
     end
-    
-    %% External Services
-    OPENAI[OpenAI API<br/>GPT-4 Model]
-    
-    %% Connections
-    API_CLIENT -.->|POST /chat<br/>GET /conversations<br/>DELETE /conversations| HTTP
-    HTTP -.-> MAIN
-    
-    MAIN --> MODELS
-    MAIN --> CHAT_SERVICE
-    MAIN --> DB_MANAGER
-    DB_MANAGER --> CONFIG
-    
-    CHAT_SERVICE --> DB_MANAGER
-    DB_MANAGER --> SQLITE
-    
-    CHAT_SERVICE -.-> OPENAI
-    
-    %% Data Flow
-    MAIN -.->|JSON Response| HTTP
-    HTTP -.->|JSON Response| API_CLIENT
+
+    subgraph "External APIs"
+        CLAUDE[Anthropic Claude\nChat Responses]
+        OPENAI_EMB[OpenAI\ntext-embedding-3-small]
+        WEB[Web Pages\nURL Ingestion]
+    end
+
+    API_CLIENT -->|HTTP + Bearer JWT| ENDPOINTS
+    ENDPOINTS --> AUTH_SVC
+    ENDPOINTS --> CHAT_SVC
+    ENDPOINTS --> RAG_SVC
+    ENDPOINTS --> DB_MGR
+
+    DB_MGR --> SQLITE
+    RAG_SVC --> CHROMA
+    CHAT_SVC --> CLAUDE
+    RAG_SVC --> OPENAI_EMB
+    RAG_SVC -->|requests + BS4| WEB
 ```
 
-## Detailed Component Flow
+## Request Flow — Chat with RAG
 
 ```mermaid
 sequenceDiagram
     participant User
-    participant ChatBot as ChatBot.tsx
-    participant API as api.ts
-    participant FastAPI as main_sqlite.py
-    participant ChatService as chat_service_sqlite.py
-    participant DBManager as database_sqlite.py
-    participant SQLite as chatbot.db
-    participant OpenAI as OpenAI API
-    
-    %% Chat Flow
-    User->>ChatBot: Types message
-    ChatBot->>ChatBot: Add user message to UI
-    ChatBot->>API: sendMessage(request)
-    API->>FastAPI: POST /chat
-    
-    FastAPI->>DBManager: create_conversation (if new)
-    DBManager->>SQLite: INSERT INTO conversations
-    SQLite-->>DBManager: conversation_id
-    
-    FastAPI->>DBManager: save_message (user message)
-    DBManager->>SQLite: INSERT INTO messages
-    
-    FastAPI->>DBManager: get_conversation_history
-    DBManager->>SQLite: SELECT messages
-    SQLite-->>DBManager: message history
-    
-    FastAPI->>ChatService: generate_response(query, history)
-    ChatService->>OpenAI: chat_completion(prompt)
-    OpenAI-->>ChatService: AI response
-    ChatService-->>FastAPI: AI response
-    
-    FastAPI->>DBManager: save_message (assistant message)
-    DBManager->>SQLite: INSERT INTO messages
-    
-    FastAPI-->>API: ChatResponse JSON
-    API-->>ChatBot: Response data
-    ChatBot->>ChatBot: Update UI with assistant message
-    ChatBot->>User: Display conversation
+    participant Frontend
+    participant FastAPI
+    participant SQLite
+    participant ChromaDB
+    participant OpenAI
+    participant Claude
+
+    User->>Frontend: Types message
+    Frontend->>FastAPI: POST /chat {message, conversation_id?}
+    FastAPI->>SQLite: save user message
+    FastAPI->>OpenAI: embed(message)
+    OpenAI-->>FastAPI: query vector
+    FastAPI->>ChromaDB: query(vector, n=3)
+    ChromaDB-->>FastAPI: relevant chunks
+    FastAPI->>Claude: messages + RAG context in system prompt
+    Claude-->>FastAPI: AI response
+    FastAPI->>SQLite: save assistant message
+    FastAPI-->>Frontend: {response, conversation_id}
+    Frontend->>User: Render markdown response
 ```
 
-## Component Architecture
+## RAG Ingestion Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant FastAPI
+    participant Extractor
+    participant OpenAI
+    participant ChromaDB
+    participant SQLite
+
+    User->>Frontend: Upload file or paste URL
+    Frontend->>FastAPI: POST /documents/upload[-url]
+    FastAPI->>Extractor: extract_pdf_text() or extract_url_text()
+    Extractor-->>FastAPI: plain text
+    FastAPI->>FastAPI: chunk_text() → N chunks
+    FastAPI->>OpenAI: embed(chunks)
+    OpenAI-->>FastAPI: N vectors
+    FastAPI->>ChromaDB: collection.add(vectors, chunks, metadata)
+    FastAPI->>SQLite: INSERT INTO documents
+    FastAPI-->>Frontend: {id, filename, file_type, chunk_count}
+```
+
+## Component Map
 
 ```mermaid
 graph LR
-    subgraph "React Components"
-        A[App.tsx] --> B[ChatBot.tsx]
-        B --> C[MessageBubble.tsx]
-        B --> D[MessageInput.tsx]
-        B --> E[TypingIndicator.tsx]
-        B --> F[AllConversations.tsx]
-        B --> G[LoadingDots.tsx]
-        B --> H[ConfirmDialog.tsx]
+    subgraph Frontend
+        App --> Login
+        App --> ChatBot
+        ChatBot --> AllConversations
+        ChatBot --> DocumentPanel
+        ChatBot --> MessageBubble
+        ChatBot --> MessageInput
+        ChatBot --> TypingIndicator
+        ChatBot --> ConfirmDialog
+        DocumentPanel --> api.ts
+        ChatBot --> api.ts
     end
-    
-    subgraph "API Layer"
-        H[api.ts]
-        I[types.ts]
+
+    subgraph Backend
+        main_sqlite.py --> auth_service.py
+        main_sqlite.py --> chat_service_sqlite.py
+        main_sqlite.py --> rag_service.py
+        main_sqlite.py --> database_sqlite.py
+        rag_service.py --> chromadb
+        chat_service_sqlite.py --> anthropic
     end
-    
-    subgraph "Backend Services"
-        J[main_sqlite.py]
-        K[chat_service_sqlite.py]
-        L[database_sqlite.py]
-        M[models.py]
-        N[config_sqlite.py]
-    end
-    
-    B --> H
-    H --> I
-    H --> J
-    J --> K
-    J --> L
-    J --> M
-    L --> N
+
+    api.ts -->|REST| main_sqlite.py
 ```
 
 ## Database Schema
 
 ```mermaid
 erDiagram
-    CONVERSATIONS {
+    USERS {
         int id PK
-        string user_id
+        text username
+        text email
+        text password_hash
         timestamp created_at
     }
-    
+    CONVERSATIONS {
+        int id PK
+        int user_id FK
+        timestamp created_at
+    }
     MESSAGES {
         int id PK
         int conversation_id FK
-        string role
-        string content
+        text role
+        text content
         timestamp created_at
     }
-    
+    DOCUMENTS {
+        int id PK
+        int user_id FK
+        text filename
+        text file_type
+        int chunk_count
+        int is_global
+        timestamp created_at
+    }
+
+    USERS ||--o{ CONVERSATIONS : owns
     CONVERSATIONS ||--o{ MESSAGES : contains
+    USERS ||--o{ DOCUMENTS : uploads
 ```
+
+## ChromaDB Collections
+
+| Collection | Contents |
+|-----------|---------|
+| `user_{id}` | Personal documents for user with given id |
+| `global_docs` | Documents visible to all users |
+
+Each chunk is stored with metadata: `doc_id`, `user_id`, `filename`.
 
 ## Project Structure
 
 ```
-FastAPI-React/
+fastapi-react-typescript-chatbot/
 ├── backend/
-│   ├── main_sqlite.py       # FastAPI application entry point
-│   ├── models.py           # Pydantic models for request/response
-│   ├── database_sqlite.py  # SQLite database manager
-│   ├── chat_service_sqlite.py  # Chat service logic
-│   ├── config_sqlite.py    # Configuration settings
-│   └── requirements_sqlite.txt # Python dependencies
-└── frontend/
-    ├── src/
-    │   ├── App.tsx         # Main React component
-    │   ├── api.ts          # API client functions
-    │   ├── types.ts        # TypeScript type definitions
-    │   └── components/     # React components
-    │       ├── ChatBot.tsx
-    │       ├── MessageBubble.tsx
-    │       ├── MessageInput.tsx
-    │       ├── TypingIndicator.tsx
-    │       ├── AllConversations.tsx
-    │       └── LoadingDots.tsx
-    └── package.json        # Node.js dependencies
+│   ├── main_sqlite.py          # FastAPI app, all endpoints
+│   ├── models.py               # Pydantic models
+│   ├── database_sqlite.py      # SQLite CRUD
+│   ├── auth_service.py         # JWT auth
+│   ├── chat_service_sqlite.py  # Claude integration
+│   ├── rag_service.py          # ChromaDB + embeddings + URL fetch
+│   ├── config_sqlite.py        # Env settings
+│   ├── requirements_sqlite.txt
+│   └── pyproject.toml
+├── frontend/
+│   └── src/
+│       ├── components/
+│       │   ├── ChatBot.tsx
+│       │   ├── DocumentPanel.tsx   # File + URL RAG
+│       │   ├── AllConversations.tsx
+│       │   ├── MessageBubble.tsx
+│       │   ├── MessageInput.tsx
+│       │   ├── Login.tsx
+│       │   ├── TypingIndicator.tsx
+│       │   ├── LoadingDots.tsx
+│       │   └── ConfirmDialog.tsx
+│       ├── api.ts
+│       ├── types.ts
+│       └── App.tsx
+├── test/
+│   ├── conftest.py             # Fixtures, mocked ChromaDB
+│   ├── test_auth.py            # 11 tests
+│   ├── test_chat.py            # 7 tests
+│   ├── test_conversations.py   # 11 tests
+│   └── test_rag.py             # 20 tests (file + URL)
+├── pytest.ini
+└── docker-compose.yml
 ```
 
-## Key Components
+## Environment Variables
 
-### Backend (FastAPI)
-
-1. **main_sqlite.py**: The main FastAPI application with CORS middleware and API endpoints
-2. **database_sqlite.py**: SQLite database connection and CRUD operations
-3. **chat_service_sqlite.py**: Business logic for chat functionality
-4. **models.py**: Pydantic models for data validation
-
-### Frontend (React + TypeScript)
-
-1. **App.tsx**: Main application component
-2. **api.ts**: HTTP client for backend communication
-3. **ChatBot.tsx**: Main chat interface component
-4. **MessageBubble.tsx**: Individual message display
-5. **MessageInput.tsx**: User input component
-
-## Data Flow
-
-1. User types message in React frontend
-2. Frontend sends HTTP POST request to FastAPI backend
-3. Backend processes message and stores in SQLite database
-4. Backend returns response to frontend
-5. Frontend displays the conversation
-
-## API Endpoints
-
-- `POST /chat`: Send a message and get response
-- `GET /conversations/user/{user_id}`: Get user's conversations
-- `POST /conversations`: Create new conversation
-- `GET /conversations/{conversation_id}/messages`: Get conversation messages
-
-## Technology Stack
-
-- **Frontend**: React, TypeScript, CSS
-- **Backend**: FastAPI, Python, Pydantic
-- **Database**: SQLite
-- **Communication**: HTTP/REST API with JSON
-- **Development**: Node.js (frontend), Python (backend)
+```env
+ANTHROPIC_API_KEY=     # Claude chat
+OPENAI_API_KEY=        # RAG embeddings
+SECRET_KEY=            # JWT signing
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+```
