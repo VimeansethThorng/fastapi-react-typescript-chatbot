@@ -306,6 +306,21 @@ export const api = {
     return response.json();
   },
 
+  async addUrlDocument(url: string, isGlobal: boolean): Promise<Document> {
+    const response = await fetch(`${API_BASE_URL}/documents/upload-url`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({ url, is_global: isGlobal }),
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.detail || 'Failed to ingest URL');
+    }
+
+    return response.json();
+  },
+
   async deleteDocument(docId: number): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/documents/${docId}`, {
       method: 'DELETE',

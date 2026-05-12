@@ -22,7 +22,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 # Import Pydantic models for request/response validation
-from models import ChatRequest, ChatResponse, ConversationCreate, ConversationResponse, UserCreate, UserLogin, LoginResponse, UserResponse
+from models import ChatRequest, ChatResponse, ConversationCreate, ConversationResponse, UserCreate, UserLogin, LoginResponse, UserResponse, UrlIngestRequest
 
 # Import database manager for SQLite operations
 from database_sqlite import db_manager
@@ -34,7 +34,7 @@ from chat_service_sqlite import chat_service
 from auth_service import auth_service
 
 # Import RAG service for document management
-from rag_service import rag_service, chunk_text, extract_pdf_text
+from rag_service import rag_service, chunk_text, extract_pdf_text, extract_url_text
 
 # Import logging for debugging and monitoring
 import logging
@@ -369,6 +369,8 @@ async def get_full_conversation(conversation_id: int):
         if not conversation_data:
             raise HTTPException(status_code=404, detail="Conversation not found")
         return conversation_data
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error fetching full conversation: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -381,6 +383,8 @@ async def delete_conversation(conversation_id: int):
         if not success:
             raise HTTPException(status_code=404, detail="Conversation not found")
         return {"message": "Conversation deleted successfully", "conversation_id": conversation_id}
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error deleting conversation: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -432,6 +436,47 @@ async def upload_document(
         raise
     except Exception as e:
         logger.error(f"Error uploading document: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@app.post("/documents/upload-url")
+async def upload_url_document(
+    body: UrlIngestRequest,
+    current_user: UserResponse = Depends(get_current_user),
+):
+    """Fetch a web page by URL, embed its text, and store it in ChromaDB."""
+    if not rag_service.is_configured():
+        raise HTTPException(status_code=503, detail="RAG is not configured (OPENAI_API_KEY missing)")
+
+    url = body.url.strip()
+    if not url.startswith(("http://", "https://")):
+        raise HTTPException(status_code=400, detail="URL must start with http:// or https://")
+
+    try:
+        text = extract_url_text(url)
+        if not text.strip():
+            raise HTTPException(status_code=422, detail="Could not extract text from the URL")
+
+        chunks = chunk_text(text)
+        doc_id = db_manager.create_document(
+            user_id=current_user.id,
+            filename=url,
+            file_type="url",
+            chunk_count=len(chunks),
+            is_global=body.is_global,
+        )
+        if not doc_id:
+            raise HTTPException(status_code=500, detail="Failed to save document metadata")
+
+        rag_service.add_document(current_user.id, doc_id, url, chunks, body.is_global)
+
+        logger.info(f"User {current_user.id} ingested URL '{url}' ({len(chunks)} chunks, global={body.is_global})")
+        return {"id": doc_id, "filename": url, "file_type": "url", "chunk_count": len(chunks), "is_global": body.is_global}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error ingesting URL: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 

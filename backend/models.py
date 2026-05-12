@@ -98,3 +98,7 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     response: str
     conversation_id: int
+
+class UrlIngestRequest(BaseModel):
+    url: str
+    is_global: bool = False

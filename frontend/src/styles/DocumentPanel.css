@@ -36,11 +36,59 @@
   padding: 0 12px 12px;
 }
 
+.doc-mode-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.doc-mode-tab {
+  flex: 1;
+  padding: 4px 0;
+  background: none;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  color: var(--text-secondary, #64748b);
+  transition: background 0.15s, color 0.15s;
+}
+
+.doc-mode-tab.active {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: #fff;
+  font-weight: 600;
+}
+
 .doc-upload-row {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
+}
+
+.doc-url-form {
+  display: flex;
+  flex: 1;
+  gap: 6px;
+  align-items: center;
+}
+
+.doc-url-input {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 6px;
+  outline: none;
+  background: var(--card-bg, #fff);
+  color: var(--text-primary, #1e293b);
+}
+
+.doc-url-input:focus {
+  border-color: #6366f1;
 }
 
 .scope-toggle {
