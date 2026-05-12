@@ -5,6 +5,8 @@ import chromadb
 from chromadb.config import Settings as ChromaSettings
 from config_sqlite import settings
 
+_URL_TIMEOUT = 15
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -26,6 +28,23 @@ def chunk_text(text: str) -> list:
             break
         start += CHUNK_SIZE - CHUNK_OVERLAP
     return chunks
+
+
+def extract_url_text(url: str) -> str:
+    """Fetch a web page and return its visible text."""
+    try:
+        import requests
+        from bs4 import BeautifulSoup
+
+        resp = requests.get(url, timeout=_URL_TIMEOUT, headers={"User-Agent": "Mozilla/5.0"})
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, "html.parser")
+        for tag in soup(["script", "style", "nav", "footer", "header"]):
+            tag.decompose()
+        return soup.get_text(separator=" ", strip=True)
+    except Exception as e:
+        logger.error(f"URL fetch error for {url}: {e}")
+        return ""
 
 
 def extract_pdf_text(file_bytes: bytes) -> str:
