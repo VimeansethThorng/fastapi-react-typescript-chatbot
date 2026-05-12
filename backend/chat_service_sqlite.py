@@ -1,4 +1,4 @@
-from openai import OpenAI
+import anthropic
 from config_sqlite import settings
 import logging
 
@@ -8,41 +8,39 @@ logger = logging.getLogger(__name__)
 class ChatService:
     def __init__(self):
         try:
-            # Simple initialization without extra parameters
-            self.client = OpenAI(
-                api_key=settings.openai_api_key
+            self.client = anthropic.AsyncAnthropic(
+                api_key=settings.anthropic_api_key
             )
         except Exception as e:
-            logger.error(f"Error initializing OpenAI client: {e}")
+            logger.error(f"Error initializing Anthropic client: {e}")
             raise e
-        
+
     async def generate_response(self, messages: list) -> str:
         try:
-            # Enhanced system prompt with LaTeX and markdown instructions
-            system_prompt = """You are a helpful assistant chatbot.
-            * using write equation using $$$$
+            system_prompt = (
+                "You are a helpful assistant chatbot. "
+                "Write mathematical equations using LaTeX syntax with $ delimiters "
+                "(e.g., $E = mc^2$ for inline, $$F = ma$$ for block equations)."
+            )
 
-
-            """
-
-            # Format messages for OpenAI API
-            formatted_messages = [
-                {"role": "system", "content": system_prompt}
-            ]
-            
+            formatted_messages = []
             for row in messages:
                 role, content = row[0], row[1]  # SQLite returns tuples
                 formatted_messages.append({"role": role, "content": content})
-            
-            response = self.client.chat.completions.create(
-                model="gpt-4.1-mini",
+
+            response = await self.client.messages.create(
+                model="claude-haiku-4-5",
+                max_tokens=1024,
+                system=[{
+                    "type": "text",
+                    "text": system_prompt,
+                    "cache_control": {"type": "ephemeral"},
+                }],
                 messages=formatted_messages,
-                max_tokens=500,
-                temperature=0.7
             )
-            
-            return response.choices[0].message.content
-            
+
+            return response.content[0].text
+
         except Exception as e:
             logger.error(f"Error generating response: {e}")
             return "I'm sorry, I encountered an error while processing your request."
