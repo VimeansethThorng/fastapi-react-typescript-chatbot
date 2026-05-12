@@ -17,7 +17,7 @@ Key Features:
 """
 
 # FastAPI framework imports for web API functionality
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
@@ -32,6 +32,9 @@ from chat_service_sqlite import chat_service
 
 # Import authentication service for user management
 from auth_service import auth_service
+
+# Import RAG service for document management
+from rag_service import rag_service, chunk_text, extract_pdf_text
 
 # Import logging for debugging and monitoring
 import logging
@@ -271,9 +274,9 @@ async def chat(request: ChatRequest, current_user: UserResponse = Depends(get_cu
         logger.info(f"Retrieving conversation history for context")
         history = db_manager.get_conversation_history(conversation_id)
         
-        # Generate AI response using chat service (integrates with OpenAI)
+        # Generate AI response — pass user_id so RAG context can be injected
         logger.info("Generating AI response")
-        ai_response = await chat_service.generate_response(history)
+        ai_response = await chat_service.generate_response(history, user_id=current_user.id)
         
         # Save AI response to database
         logger.info("Saving AI response to database")
@@ -381,6 +384,85 @@ async def delete_conversation(conversation_id: int):
     except Exception as e:
         logger.error(f"Error deleting conversation: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+# DOCUMENT / RAG ENDPOINTS
+
+@app.post("/documents/upload")
+async def upload_document(
+    file: UploadFile = File(...),
+    is_global: bool = Form(False),
+    current_user: UserResponse = Depends(get_current_user),
+):
+    """Upload a PDF or TXT file, embed its contents, and store in ChromaDB."""
+    if not rag_service.is_configured():
+        raise HTTPException(status_code=503, detail="RAG is not configured (OPENAI_API_KEY missing)")
+
+    filename = file.filename or "unknown"
+    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+    if ext not in ("pdf", "txt"):
+        raise HTTPException(status_code=400, detail="Only PDF and TXT files are supported")
+
+    try:
+        content = await file.read()
+        if ext == "pdf":
+            text = extract_pdf_text(content)
+        else:
+            text = content.decode("utf-8", errors="ignore")
+
+        if not text.strip():
+            raise HTTPException(status_code=400, detail="Could not extract text from the file")
+
+        chunks = chunk_text(text)
+        doc_id = db_manager.create_document(
+            user_id=current_user.id,
+            filename=filename,
+            file_type=ext,
+            chunk_count=len(chunks),
+            is_global=is_global,
+        )
+        if not doc_id:
+            raise HTTPException(status_code=500, detail="Failed to save document metadata")
+
+        rag_service.add_document(current_user.id, doc_id, filename, chunks, is_global)
+
+        logger.info(f"User {current_user.id} uploaded '{filename}' ({len(chunks)} chunks, global={is_global})")
+        return {"id": doc_id, "filename": filename, "file_type": ext, "chunk_count": len(chunks), "is_global": is_global}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error uploading document: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@app.get("/documents")
+async def list_documents(current_user: UserResponse = Depends(get_current_user)):
+    """List all documents accessible to the current user (personal + global)."""
+    try:
+        return db_manager.get_documents(current_user.id)
+    except Exception as e:
+        logger.error(f"Error listing documents: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@app.delete("/documents/{doc_id}")
+async def delete_document(doc_id: int, current_user: UserResponse = Depends(get_current_user)):
+    """Delete a document and its embeddings. Users can only delete their own documents."""
+    doc = db_manager.get_document_by_id(doc_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+    if doc["user_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorised to delete this document")
+
+    try:
+        rag_service.delete_document(current_user.id, doc_id, bool(doc["is_global"]))
+        db_manager.delete_document(doc_id)
+        logger.info(f"User {current_user.id} deleted document {doc_id}")
+        return {"message": "Document deleted", "doc_id": doc_id}
+    except Exception as e:
+        logger.error(f"Error deleting document {doc_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
 
 if __name__ == "__main__":
     import uvicorn

@@ -5,6 +5,7 @@ import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
 import TypingIndicator from './TypingIndicator';
 import AllConversations from './AllConversations';
+import DocumentPanel from './DocumentPanel';
 // Import TypeScript types for type safety
 import { Message, FullConversation } from '../types';
 // Import API functions to communicate with the backend
@@ -284,9 +285,12 @@ const ChatBot: React.FC<ChatBotProps> = ({ currentUser, onLogout }) => {
             onSelectConversation={handleSelectConversation}
             onDeleteConversation={handleDeleteConversation}
             currentConversationId={conversationId || undefined}
-            refreshTrigger={refreshTrigger} // Triggers re-fetch when incremented
+            refreshTrigger={refreshTrigger}
           />
         </div>
+
+        {/* Document upload panel for RAG */}
+        <DocumentPanel />
       </div>
 
       {/* RESIZE HANDLE */}

@@ -26,7 +26,7 @@
  * All methods return Promises and throw errors on network or server failure.
  */
 
-import { ChatRequest, ChatResponse, Message, ConversationSummary, FullConversation } from './types';
+import { ChatRequest, ChatResponse, Message, ConversationSummary, FullConversation, Document } from './types';
 
 // Authentication types
 interface User {
@@ -264,11 +264,57 @@ export const api = {
         ...getAuthHeaders(),
       },
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to delete conversation');
     }
 
     return response.json();
+  },
+
+  // Document / RAG endpoints
+
+  async uploadDocument(file: File, isGlobal: boolean): Promise<Document> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('is_global', String(isGlobal));
+
+    const response = await fetch(`${API_BASE_URL}/documents/upload`, {
+      method: 'POST',
+      headers: { ...getAuthHeaders() },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.detail || 'Failed to upload document');
+    }
+
+    return response.json();
+  },
+
+  async getDocuments(): Promise<Document[]> {
+    const response = await fetch(`${API_BASE_URL}/documents`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch documents');
+    }
+
+    return response.json();
+  },
+
+  async deleteDocument(docId: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/documents/${docId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.detail || 'Failed to delete document');
+    }
   },
 };
