@@ -80,6 +80,16 @@ export interface ConversationSummary {
  * Used when loading conversation history from the backend
  * Corresponds to the FullConversation Pydantic model in the backend
  */
+export interface Document {
+  id: number;
+  user_id: number;
+  filename: string;
+  file_type: string;
+  chunk_count: number;
+  is_global: boolean | number;
+  created_at: string;
+}
+
 export interface FullConversation {
   conversation: {
     id: number;                  // Conversation unique identifier
